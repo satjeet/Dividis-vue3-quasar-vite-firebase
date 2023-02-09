@@ -1,1 +1,25 @@
 // app global css in SCSS form
+
+//VARIABLES
+$bg: #2980b9;
+$color: #2c3e50;
+$mt: 100px;
+$fs: 50px;
+$fs2: 2em;
+$fs3: 1.5em;
+$res: 850px;
+$res2: 550px;
+
+h1 {
+  color: $color;
+  margin-top: $mt;
+  font-size: $fs;
+  text-align: center;
+  @media screen and (max-width: $res){
+    font-size: $fs2;
+  }
+  @media screen and (max-width: $res2){
+    font-size: $fs3;
+  }
+}
+
