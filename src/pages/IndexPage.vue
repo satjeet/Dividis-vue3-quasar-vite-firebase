@@ -43,7 +43,7 @@
             <div class="row justify-begin">
               <q-btn href="https://www.youtube.com/watch?v=oEpIJI-z5Vw&list=PLVLTpK34Hy3kr2h9twqWdApiKxpfhn9Rh&index=1" color="red-5" icon="logout" label="Regresar a mi zona de confort" />
             </div>
-            <MyTextAnimator class="text-white q-pa-xs" text=" Esta es TU Oportunidad de alinear tu Subconsciente con tu Conciencia." />
+            <MyTextAnimator class="text-white q-pa-xs" text=" Esta es tu OPORTUNIDAD de alinear tu Subconsciente con tu Conciencia." />
 
           </div>
 
@@ -86,6 +86,9 @@ import MyTextAnimator from 'components/MyTextAnimator.vue'
 import { Todo, Meta } from 'components/models'
 // import ExampleComponent from 'components/ExampleComponent.vue'
 import { defineComponent, ref } from 'vue'
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { auth } from '../firebase'
+
 /*
     <example-component
       title="Example component"
@@ -97,6 +100,8 @@ import { defineComponent, ref } from 'vue'
 ExampleComponent
 
 */
+const provider = new GoogleAuthProvider()
+
 export default defineComponent({
   name: 'IndexPage',
   components: { MyTextAnimator },
@@ -114,6 +119,25 @@ export default defineComponent({
   methods: {
     LogingGoogle () {
       console.log('accessGoogle')
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          // This gives you a Google Access Token. You can use it to access the Google API.
+          const credential = GoogleAuthProvider.credentialFromResult(result)
+          const token = credential.accessToken
+          // The signed-in user info.
+          const user = result.user
+          // ...
+        })
+        .catch((error) => {
+          // Handle Errors here.
+          const errorCode = error.code
+          const errorMessage = error.message
+          // The email of the user's account used.
+          const email = error.customData.email
+          // The AuthCredential type that was used.
+          const credential = GoogleAuthProvider.credentialFromError(error)
+          // ...
+        })
     }
 
   },

@@ -1,14 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-
-        <q-toolbar-title>
-          Diseña una Vida que Disfrutes
-        </q-toolbar-title>
-
-      </q-toolbar>
-    </q-header>
+   <NavBar> </NavBar>
 
     <q-page-container>
       <router-view />
@@ -18,6 +10,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
+import NavBar from 'components/NavBar.vue'
 // import EssentialLink from 'components/EssentialLink.vue'
 /*
 <q-btn
@@ -99,8 +92,7 @@ const linksList = [
 export default defineComponent({
   name: 'MainLayout',
 
-  components: {
-  },
+  components: { NavBar },
 
   setup () {
     const leftDrawerOpen = ref(false)
