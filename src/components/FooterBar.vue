@@ -1,4 +1,5 @@
 <template>
+  <q-layout view="lHh lpr lFf" container style="height: 50px" class="shadow-2 align-center bg-primary rounded-borders">
 
   <q-footer elevated class="bg-secundary-8 text-white">
         <q-toolbar>
@@ -11,7 +12,7 @@
         />
         </q-toolbar>
   </q-footer>
-
+  </q-layout>
 </template>
 
 <script setup lang="ts">

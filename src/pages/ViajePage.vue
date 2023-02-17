@@ -46,7 +46,6 @@
         no-caps
       />
     </div>
-    <FooterBar> </FooterBar>
 
   </div>
 
@@ -54,7 +53,6 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import FooterBar from 'components/FooterBar.vue'
 import CarouselCard from 'components/CarouselCard.vue'
 
 export default defineComponent({
@@ -66,7 +64,7 @@ export default defineComponent({
 
     }
   },
-  components: { FooterBar, CarouselCard }
+  components: { CarouselCard }
 })
 </script>
 

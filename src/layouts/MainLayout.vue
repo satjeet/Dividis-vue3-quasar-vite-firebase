@@ -1,17 +1,21 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
+
    <NavBar> </NavBar>
+  <q-layout view="lHh lpr lFf" container style="min-height: 650px" class="shadow-2 align-center bg-primary rounded-borders">
 
     <q-page-container>
       <router-view />
     </q-page-container>
-
   </q-layout>
+
+    <FooterBar> </FooterBar>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import NavBar from 'components/NavBar.vue'
+import FooterBar from 'components/FooterBar.vue'
+
 // import EssentialLink from 'components/EssentialLink.vue'
 /*
 <q-btn
@@ -58,7 +62,7 @@ const linksList = [
 export default defineComponent({
   name: 'MainLayout',
 
-  components: { NavBar },
+  components: { NavBar, FooterBar },
 
   setup () {
     const leftDrawerOpen = ref(false)
