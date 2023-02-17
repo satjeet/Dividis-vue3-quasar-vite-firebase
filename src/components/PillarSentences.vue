@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { useViajeStore } from '../store/viajeStore'
+import { useViajeStore } from '../stores/viaje-store'
 
 export default defineComponent({
   props: {

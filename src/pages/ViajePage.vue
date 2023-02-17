@@ -1,7 +1,6 @@
 
 <template>
   <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
-    <NavBar> </NavBar>
 
     <div>
       <div class="q-pa-md">
@@ -55,12 +54,11 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import NavBar from 'components/NavBar.vue'
 import FooterBar from 'components/FooterBar.vue'
 import CarouselCard from 'components/CarouselCard.vue'
 
 export default defineComponent({
-  name: 'ErrorNotFound',
+  name: 'ViajePage',
   setup () {
     return {
       slide: ref('style'),
@@ -68,7 +66,7 @@ export default defineComponent({
 
     }
   },
-  components: { NavBar, FooterBar, CarouselCard }
+  components: { FooterBar, CarouselCard }
 })
 </script>
 

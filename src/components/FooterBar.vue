@@ -1,21 +1,21 @@
 <template>
 
-<q-footer elevated class="bg-secundary-8 text-white">
-      <q-toolbar>
+  <q-footer elevated class="bg-secundary-8 text-white">
+        <q-toolbar>
 
-          <q-btn
-        label="Salir"
-        color="secondary"
-        v-if="userGoogle"
-        @click="logoutGoogle"
-      />
-      </q-toolbar>
-    </q-footer>
+            <q-btn
+          label="Salir"
+          color="secondary"
+          v-if="userGoogle"
+          @click="logoutGoogle"
+        />
+        </q-toolbar>
+  </q-footer>
 
 </template>
 
 <script setup lang="ts">
-import { ref, inject, provide } from 'vue'
+import { inject } from 'vue'
 
 // usar google como proveedor de autenticación
 import { signOut } from 'firebase/auth'

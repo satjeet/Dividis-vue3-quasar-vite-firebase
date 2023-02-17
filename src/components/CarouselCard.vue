@@ -9,10 +9,16 @@
       <q-separator />
 
       <q-card-actions vertical class="my-card bg-accent text-white">
-        <q-btn flat>Vision</q-btn>
-        <q-btn flat>Proposito</q-btn>
-        <q-btn flat>Creencias</q-btn>
-        <q-btn flat>Estrategias</q-btn>
+        <router-link
+          v-for="(pillar, index) in pillars"
+          :key="index"
+          :to="{ name: 'CategoryPilarPage', params: { category: title, pillar: pillar } }"
+                   @click="navigateToCategoryPilarPage(pillar)">
+          <q-btn  unelevated rounded color="primary" >
+            <div>{{pillar}}</div>
+          </q-btn>
+        </router-link>
+
       </q-card-actions>
     </q-card>
   </q-carousel-slide>
@@ -35,6 +41,16 @@ export default defineComponent({
     icon: {
       type: String,
       required: true
+    }
+  },
+  data () {
+    return {
+      pillars: ['Vision', 'Proposito', 'Creencias', 'Estrategias']
+    }
+  },
+  methods: {
+    navigateToCategoryPilarPage (pillar) {
+      console.log(`Navigating to CategoryPilarPage for category ${this.title} and pillar ${pillar}`)
     }
   }
 })
