@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import { useViajeStore } from '../stores/viaje-store'
 
 export default defineComponent({
@@ -29,8 +29,16 @@ export default defineComponent({
   },
   setup (props) {
     const store = useViajeStore()
-    const sentences = ref(store.categories.find(category => category.name === props.category)?.pillars
-      .find(pillar => pillar.name === props.pillar)?.sentences ?? [])
+    const sentences = computed(() => {
+      const category = store.categories.find(cat => cat.name === props.category)
+      if (category) {
+        const pillar = category.pillars.find(pillar => pillar.name === props.pillar)
+        if (pillar) {
+          return pillar.sentences
+        }
+      }
+      return []
+    })
     const editingIndex = ref<number | null>(null)
     const editingSentence = ref('')
 
