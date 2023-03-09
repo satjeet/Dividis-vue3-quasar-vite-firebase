@@ -25,16 +25,16 @@ import { useViajeStore } from '../stores/viaje-store'
 export default defineComponent({
   props: {
     category: { type: String, required: true },
-    pillar: { type: String, required: true }
+    pilar: { type: String, required: true }
   },
   setup (props) {
     const store = useViajeStore()
     const sentences = computed(() => {
       const category = store.categories.find(cat => cat.name === props.category)
       if (category) {
-        const pillar = category.pillars.find(pillar => pillar.name === props.pillar)
-        if (pillar) {
-          return pillar.sentences
+        const pilar = category.pilars.find(pilar => pilar.name === props.pilar)
+        if (pilar) {
+          return pilar.sentences
         }
       }
       return []
@@ -49,7 +49,7 @@ export default defineComponent({
 
     function saveEdit () {
       if (editingIndex.value !== null) {
-        store.editSentence(props.category, props.pillar, editingIndex.value, editingSentence.value)
+        store.editSentence(props.category, props.pilar, editingIndex.value, editingSentence.value)
         editingIndex.value = null
         editingSentence.value = ''
       }
@@ -61,7 +61,7 @@ export default defineComponent({
     }
 
     function deleteSentence (index: number) {
-      store.deleteSentence(props.category, props.pillar, index)
+      store.deleteSentence(props.category, props.pilar, index)
     }
 
     return {

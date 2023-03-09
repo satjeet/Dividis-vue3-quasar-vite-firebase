@@ -38,10 +38,12 @@ export default {
         // Divide el texto en letras
         const textArray = this.text.split('')
         // Recorre cada letra y las agrega al div
-        for (let i = 0; i < textArray.length; i++) {
-          this.$refs.textContainer.innerHTML += textArray[i]
-          // Pausa entre cada letra
-          await this.sleep(50)
+        if (this.$refs.textContainer.innerHTML !== null) {
+          for (let i = 0; i < textArray.length; i++) {
+            this.$refs.textContainer.innerHTML += textArray[i]
+            // Pausa entre cada letra
+            await this.sleep(50)
+          }
         }
       }
       // Habilita el botón cuando se haya completado la animación

@@ -1,10 +1,11 @@
 <template>
 
   <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
+        <BotonGuardadoFirebase/>
 
-    <pillar-sentences :category="category" :pillar="pillar" />
+    <pilar-sentences :category="category" :pilar="pilar" />
 
-    <add-sentence :category="category" :pillar="pillar" />
+    <add-sentence :category="category" :pilar="pilar" />
 
   </div>
 
@@ -13,13 +14,15 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import AddSentence from '../components/AddSentence.vue'
-import PillarSentences from '../components/PillarSentences.vue'
+import PilarSentences from '../components/PilarSentences.vue'
+import BotonGuardadoFirebase from '../components/BotonGuardadoFirebase.vue'
 
 export default defineComponent({
-  name: 'CategoryPillarPage',
+  name: 'CategoryPilarPage',
   components: {
     AddSentence,
-    PillarSentences
+    PilarSentences,
+    BotonGuardadoFirebase
 
   },
   props: {
@@ -27,7 +30,7 @@ export default defineComponent({
       type: String,
       required: true
     },
-    pillar: {
+    pilar: {
       type: String,
       required: true
     }

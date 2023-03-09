@@ -2,6 +2,7 @@
   <q-layout view="lHh lpr lFf" container style="height: 50px" class="shadow-2 align-center bg-primary rounded-borders">
 
   <q-footer elevated class="bg-secundary-8 text-white">
+
         <q-toolbar>
 
             <q-btn
@@ -29,7 +30,14 @@ const $q = useQuasar()
 
 import { useRouter } from 'vue-router'
 const router = useRouter()
-
+/* No me resulto. eliminable
+const FooterBar = defineComponent({
+  name: 'MyComponent',
+  components: {
+  }
+  // Your component logic here
+})
+*/
 const logoutGoogle = () => {
   signOut(auth)
     .then(() => {

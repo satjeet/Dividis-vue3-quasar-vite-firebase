@@ -10,12 +10,12 @@
 
       <q-card-actions vertical class="my-card bg-accent text-white">
         <router-link
-          v-for="(pillar, index) in pillars"
+          v-for="(pilar, index) in pilars"
           :key="index"
-          :to="{ name: 'CategoryPilarPage', params: { category: title, pillar: pillar } }"
-                   @click="navigateToCategoryPilarPage(pillar)">
+          :to="{ name: 'CategoryPilarPage', params: { category: title, pilar: pilar } }"
+                   @click="navigateToCategoryPilarPage(pilar)">
           <q-btn  unelevated rounded color="primary" >
-            <div>{{pillar}}</div>
+            <div>{{pilar}}</div>
           </q-btn>
         </router-link>
 
@@ -45,12 +45,12 @@ export default defineComponent({
   },
   data () {
     return {
-      pillars: ['Vision', 'Proposito', 'Creencias', 'Estrategias']
+      pilars: ['Vision', 'Proposito', 'Creencias', 'Estrategias']
     }
   },
   methods: {
-    navigateToCategoryPilarPage (pillar) {
-      console.log(`Navigating to CategoryPilarPage for category ${this.title} and pillar ${pillar}`)
+    navigateToCategoryPilarPage (pilar) {
+      console.log(`Navigating to CategoryPilarPage for category ${this.title} and pilar ${pilar}`)
     }
   }
 })
