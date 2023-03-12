@@ -33,7 +33,7 @@ export default {
     async showText () {
       // si innerhtml esta null no hace nada
       const container = this.$refs.textContainer
-      if (container) {
+      if (container !== null) {
         this.$refs.textContainer.innerHTML = ''
         // Divide el texto en letras
         const textArray = this.text.split('')
