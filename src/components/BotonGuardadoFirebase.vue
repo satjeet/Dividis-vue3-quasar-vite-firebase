@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, watch } from 'vue'
 import { useViajeStore } from '../stores/viaje-store'
 import { storeToRefs } from 'pinia'
 export default defineComponent({
@@ -25,13 +25,16 @@ export default defineComponent({
     /* const cambiosSinGuardar = computed(() => {
       return store.state.cambiosSinGuardar || 0
     }) */
+    const isDisabled = computed(() => {
+      return store.isContadorCero
+    })
 
     const { cambiosSinGuardar } = storeToRefs(store)
     function guardarCambios () {
       store.guardarCambiosFirebase()
     }
     // Retorno de los datos y funciones que se utilizarán en la plantilla
-    return { guardarCambios, cambiosSinGuardar, isDisabled: store.isContadorCero as boolean }
+    return { guardarCambios, cambiosSinGuardar, isDisabled }
   }
 })
 </script>
