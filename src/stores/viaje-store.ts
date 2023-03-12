@@ -23,7 +23,11 @@ export const useViajeStore = defineStore({
     cambiosSinGuardar: 0 as number
   }),
   getters: {
-    SumarCambiosSinGuardar: (state) => state.cambiosSinGuardar + 1
+    SumarCambiosSinGuardar: (state) => state.cambiosSinGuardar + 1,
+    isContadorCero ():boolean {
+      return this.cambiosSinGuardar === 0
+    }
+
   },
   actions: { /*
     addSentence (categoryName: string, pillarName: string, sentence: string) {

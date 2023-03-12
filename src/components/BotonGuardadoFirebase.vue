@@ -1,7 +1,7 @@
 //Boton de guardado con contador de cambios sin guardar.
 <template>
 <div class="q-pa-md q-gutter-sm">
-    <q-btn @click="guardarCambios" push color="white" text-color="primary" label="Grabar Cambios en la nube">
+    <q-btn :disabled="isDisabled" @click="guardarCambios" push color="white" text-color="primary" label="Grabar Cambios en la nube">
       <q-badge color="orange" floating>{{cambiosSinGuardar}}</q-badge>
     </q-btn>
 
@@ -28,10 +28,10 @@ export default defineComponent({
 
     const { cambiosSinGuardar } = storeToRefs(store)
     function guardarCambios () {
-      store.guardarCambios()
+      store.guardarCambiosFirebase()
     }
     // Retorno de los datos y funciones que se utilizarán en la plantilla
-    return { guardarCambios, cambiosSinGuardar }
+    return { guardarCambios, cambiosSinGuardar, isDisabled: store.isContadorCero as boolean }
   }
 })
 </script>
