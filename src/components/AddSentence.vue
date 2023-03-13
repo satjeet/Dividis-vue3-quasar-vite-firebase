@@ -5,7 +5,6 @@
       <input type="text" v-model="sentence" />
     </label>
     <button @click="addSentence">Add sentence</button>
-    <button @click="guardarCambios">grabar sentence</button>
 
   </div>
 </template>
@@ -31,11 +30,9 @@ export default defineComponent({
       store.addSentence(props.category, props.pilar, sentence.value)
       sentence.value = ''
     }
-    function guardarCambios () {
-      store.guardarCambios()
-    }
+
     // Retorno de los datos y funciones que se utilizarán en la plantilla
-    return { sentence, addSentence, guardarCambios }
+    return { sentence, addSentence }
   }
 })
 </script>

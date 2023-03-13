@@ -58,10 +58,11 @@ import { useViajeStore } from '../stores/viaje-store'
 
 export default defineComponent({
   name: 'ViajePage',
-  setup () {
+  mounted () {
     const store = useViajeStore()
     store.cargaInicialColeccionFirebase()
-
+  },
+  setup () {
     return {
       slide: ref('style'),
       lorem: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo.'
