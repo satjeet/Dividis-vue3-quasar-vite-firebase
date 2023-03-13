@@ -54,10 +54,14 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import CarouselCard from 'components/CarouselCard.vue'
+import { useViajeStore } from '../stores/viaje-store'
 
 export default defineComponent({
   name: 'ViajePage',
   setup () {
+    const store = useViajeStore()
+    store.cargaInicialColeccionFirebase()
+
     return {
       slide: ref('style'),
       lorem: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo.'

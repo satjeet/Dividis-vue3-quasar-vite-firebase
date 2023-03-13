@@ -5,7 +5,8 @@ en cada pilar de cada categoría
 */
 import { defineStore } from 'pinia'
 import { auth, db } from '../firebase'
-import { doc, setDoc } from 'firebase/firestore'
+import { doc, setDoc, DocumentSnapshot, getDoc, collection } from 'firebase/firestore'
+
 interface Pilar {
   name: string;
   sentences: string[];
@@ -13,9 +14,21 @@ interface Pilar {
 
 interface Category {
   name: string;
-  pilars: Pilar[];
+  pilars: { name: string;
+    sentences: string[];
+  }[]
+
 }
 
+interface FirebaseCategoriesData {
+  categories: {
+    name: string;
+    pilars : {
+      name: string;
+      sentences: string[];
+    }[];
+  }[];
+}
 export const useViajeStore = defineStore({
   id: 'my-viaje-store',
   state: () => ({
@@ -88,6 +101,64 @@ export const useViajeStore = defineStore({
         })
       }
       this.$state.cambiosSinGuardar = 0
+    },
+    // Establecer la lista de objetos como estado inicial de la store de Pinia
+
+    async cargaInicialColeccionFirebase () {
+      const usuarioId = auth.currentUser?.uid
+      if (usuarioId) {
+        // Obtener referencia a una colección
+        // const collectionRef = collection(db, 'usuarios')
+        // Obtener referencia a un documento
+        // const documentRef = collection(db, 'usuarios').doc(usuarioId)
+        const collectionRef = collection(db, 'usuarios', usuarioId, 'categories')
+        console.log('mensaje collectionRef', collectionRef)
+
+        // const documentRef = doc(collectionRef, 'id-del-documento')
+        // const documentSnapshot = await getDocs(documentRef)
+        // console.log('mensaje documentRef', documentRef)
+        // Obtener documentos de la colección
+        /*   const querySnapshot = await getDocs(collectionRef)
+        console.log('mensaje qquerySnapshotuery', querySnapshot)
+
+        const docRef = doc(db, 'usuarios', usuarioId)
+    */
+        // const docSnap = await getDoc(docRef)
+        /// ///
+        // Obtener referencia a un documento
+        const categoriesRef = doc(collection(db, 'usuarios'), usuarioId)
+        // Obtener el documento
+        const docSnap = await getDoc(categoriesRef)
+        if (docSnap.exists()) {
+          /*
+En este código, primero se convierten los datos de Firebase en el tipo FirebaseCategoriesData utilizando la sintaxis de aserción (as) de TypeScript.
+ Luego se realiza una conversión adicional para convertir los datos a un array de Category. La conversión se realiza utilizando el método map() para
+  transformar cada objeto FirebaseCategory en un objeto Category con la estructura adecuada.
+*/
+          const categoriesData: FirebaseCategoriesData = docSnap.data() as FirebaseCategoriesData
+          console.log('categoriesData:', categoriesData)
+          const categories: Category[] = categoriesData.categories.map(categoryData => {
+            return {
+              name: categoryData.name,
+              pilars: categoryData.pilars.map(pilarData => {
+                return {
+                  name: pilarData.name,
+                  sentences: pilarData.sentences
+                }
+              })
+            }
+          })
+          this.$state.categories = categories
+          console.log('categories:' + this.$state.categories)
+
+          // return categories
+        } else {
+          // doc.data() will be undefined in this case
+          console.log('No such document!')
+        }
+      }
     }
   }
-})
+}
+
+)

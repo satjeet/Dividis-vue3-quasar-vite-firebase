@@ -9,7 +9,7 @@
     </ul>
     <div v-if="editingIndex !== null">
       <label>
-        New sentence:
+        Edita la sentencia:
         <input type="text" v-model="editingSentence" />
       </label>
       <button @click="saveEdit">Save</button>
