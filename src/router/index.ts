@@ -7,6 +7,7 @@ import {
 } from 'vue-router'
 
 import routes from './routes'
+import { auth } from '../firebase'
 
 /*
  * If not building with SSR mode, you can
@@ -30,6 +31,21 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE)
+  })
+
+  Router.beforeEach((to, from, next) => {
+    // Verifica si la ruta requiere autenticación
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+    // Comprueba si el usuario está autenticado
+    const isAuthenticated = auth.currentUser
+
+    if (requiresAuth && !isAuthenticated) {
+      // Si el usuario no está autenticado y la ruta requiere autenticación, redirige a la página principal
+      next('/')
+    } else {
+      // Si todo está bien, continúa con la navegación
+      next()
+    }
   })
 
   return Router

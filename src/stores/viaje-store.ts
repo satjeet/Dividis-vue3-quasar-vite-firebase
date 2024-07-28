@@ -34,7 +34,9 @@ export const useViajeStore = defineStore({
   state: () => ({
     categories: [] as Category[],
     cambiosSinGuardar: 0 as number,
-    datosCargados: false as boolean
+    datosCargados: false as boolean,
+    categoriaSeleccionada: '' as string,
+    pilarSeleccionado: '' as string
   }),
   getters: {
     SumarCambiosSinGuardar: (state) => state.cambiosSinGuardar + 1,
@@ -49,6 +51,14 @@ export const useViajeStore = defineStore({
       const pillarIndex = this.categories[categoryIndex].pillars.findIndex(pillar => pillar.name === pillarName)
       this.categories[categoryIndex].pillars[pillarIndex].sentences.push(sentence)
     }, */
+
+    // Nuevas acciones para actualizar la categoría y el pilar seleccionados
+    setCategoriaSeleccionada (categoria: string) {
+      this.categoriaSeleccionada = categoria
+    },
+    setPilarSeleccionado (pilar: string) {
+      this.pilarSeleccionado = pilar
+    },
     addSentence (categoryName: string, pilarName: string, sentence: string) {
       this.$state.cambiosSinGuardar = this.$state.cambiosSinGuardar + 1
       // this.$state.cambiosSinGuardar = this.SumarCambiosSinGuardar
@@ -77,7 +87,10 @@ export const useViajeStore = defineStore({
           console.log('add sentence 2')
         } else {
           // Si se encuentra el pilar, se agrega la oración
-          this.categories[categoryIndex].pilars[pilarIndex].sentences.push(sentence)
+          // this.categories[categoryIndex].pilars[pilarIndex].sentences.push(sentence)
+          if (!pilar.sentences.includes(sentence)) {
+            pilar.sentences.push(sentence)
+          }
           console.log('add sentence 3')
         }
       }

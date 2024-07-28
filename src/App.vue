@@ -8,10 +8,10 @@ import { ref, provide } from 'vue'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from './firebase'
 import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
-const router = useRouter()
+// import { useRouter } from 'vue-router'
+// const router = useRouter()
 
-const userGoogle = ref(false)
+const userGoogle = ref(undefined)
 provide('userGoogle', userGoogle)
 const $q = useQuasar()
 onAuthStateChanged(auth, (user) => {
@@ -20,7 +20,7 @@ onAuthStateChanged(auth, (user) => {
   // https://firebase.google.com/docs/reference/js/firebase.User
   // const uid = user.uid;
     userGoogle.value = user
-    router.push('/Viaje')
+    // router.push('/viaje')
     console.log(user)
     setTimeout(() => {
       $q.loading.hide()

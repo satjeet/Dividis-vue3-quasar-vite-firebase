@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-
+import { useViajeStore } from '../stores/viaje-store'
 export default defineComponent({
   name: 'CarouselCard',
   props: {
@@ -51,6 +51,12 @@ export default defineComponent({
   methods: {
     navigateToCategoryPilarPage (pilar) {
       console.log(`Navigating to CategoryPilarPage for category ${this.title} and pilar ${pilar}`)
+      // Obtener la instancia del store
+      const viajeStore = useViajeStore()
+
+      // Actualizar la categoría y el pilar en el store
+      viajeStore.setCategoriaSeleccionada(this.title)
+      viajeStore.setPilarSeleccionado(pilar)
     }
   }
 })

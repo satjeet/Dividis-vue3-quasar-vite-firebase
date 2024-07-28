@@ -1,182 +1,170 @@
 <template>
-
-  <div class="q-pa-xs q-ma-xs" style="min-height: 600px">
-    <q-tab-panels
-      v-model="panel"
-      animated
-      swipeable
-      vertical
-      class="bg-black text-white shadow-2 rounded-borders"
-    >
-      <q-tab-panel name="mails">
-        <q-parallax :height="600" :speed="0.8">
-          <template v-slot:media>
-
-            <img src="https://lascebrassalen.com/wp-content/uploads/2022/09/002-1024x682.jpg">
-          </template>
-
-          <div class="bg-black q-pa-none q-ma-none" style="opacity: 0.6 ">
-
-            <MyTextAnimator class="text-white q-pa-md" text=" La CONCIENCIA es nuestra mente creativa pero solo puede procesar alrededor de  40 bits de información por segundo" />
-          </div>
-
-       </q-parallax>
-      </q-tab-panel>
-
-      <q-tab-panel name="alarms">
-        <q-parallax :height="600" :speed="0.9">
-        <template v-slot:media >
-
-          <img src="https://i0.wp.com/doquanticoaocosmico.com/wp-content/uploads/2022/04/118fa-mentes-como-funcionam.jpg">
-        </template>
-        <div class="bg-black q-pa-xs q-ma-xs" style="opacity: 0.6">
-         <MyTextAnimator class="text-white q-pa-md" text=" El SUBCONCIENTE es la mente del mamifero que evoluciono para sobrevivir en la naturaleza, usando todos sus sentidos y repitiendo lo que haya sido seguro
-          antes, logrando procesar 40 millones de bits de informacion por segundo." />
+  <div class="index-page">
+    <div v-for="section in sections" :key="section.id" class="section">
+      <div class="content">
+        <div v-if="section.id !== 3" class="text-with-led">
+          {{ section.text }}
+        </div>
+        <!-- Flechas solo en secciones antes de la final -->
+        <q-btn v-if="section.next" @click="scrollTo(section.next)" icon="south" color="orange" round dense class="next-button" />
+        <div v-if="section.id === 3" class="final-content">
+          <a href="URL_PARA_SALIR" class="exit-button slider-link">Salir</a>
+          <div class="led-message">{{ section.text }}</div>
+          <a href="URL_PARA_LOGIN" class="login-button slider-link">Login</a>
 
         </div>
-       </q-parallax>
-      </q-tab-panel>
-
-      <q-tab-panel name="movies" style=" background-image: url(https://cdn.pixabay.com/photo/2019/03/11/09/18/universe-4048123_960_720.jpg)">
-
-          <div class="bg-black q-pa-none q-mt-xs" style=" background-image: url(https://cdn.pixabay.com/photo/2019/03/11/09/18/universe-4048123_960_720.jpg);opacity: 0.6 ; max-height: 300px">
-            <div class="row justify-begin">
-              <q-btn href="https://www.youtube.com/watch?v=oEpIJI-z5Vw&list=PLVLTpK34Hy3kr2h9twqWdApiKxpfhn9Rh&index=1" color="red-5" icon="logout" label="Regresar a mi zona de confort" />
-            </div>
-            <MyTextAnimator class="text-white q-pa-xs" text=" Esta es tu OPORTUNIDAD de alinear tu Subconsciente con tu Conciencia." />
-
-          </div>
-
-        <div class="q-pa-md">
-
-        <q-list bordered separator>
-
-          <q-slide-item @left="LogingGoogle">
-            <template v-slot:left>
-
-              <q-icon name="sentiment_very_satisfied" />
-              QUE DISFRUTES EL VIAJE
-            </template>
-
-            <q-item class="bg-blue">
-              <q-item-section avatar>
-                 <q-icon name="start" />
-              </q-item-section>
-              <q-item-section>Comienzar a diseñar mi vida</q-item-section>
-            </q-item>
-          </q-slide-item>
-
-          </q-list>
-        </div>
-           <q-card class="my-card">
-          <q-img src="https://standard.kz/storage/articles/0HyKn5hVBIsCnpyqpWP5lzQkMvVpqJwV4AXgr6nI.webp">
-
-          </q-img>
-        </q-card>
-
-        </q-tab-panel>
-
-      </q-tab-panels>
+      </div>
     </div>
-
+  </div>
 </template>
 
-<script lang="ts">
-import MyTextAnimator from 'components/MyTextAnimator.vue'
-import { Todo, Meta } from 'components/models'
-// import ExampleComponent from 'components/ExampleComponent.vue'
-import { defineComponent, ref } from 'vue'
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
-import { auth } from '../firebase'
-
-/*
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
-
-ExampleComponent
-
-*/
-const provider = new GoogleAuthProvider()
-
-export default defineComponent({
+<script>
+export default {
   name: 'IndexPage',
-  components: { MyTextAnimator },
-  /* data () {
+  data () {
     return {
-      text: 'Este es el texto a escribir letra por letra',
-      words: []
+      sections: [
+        { id: 1, text: 'Los sueños sin plan son solo deseos. ¿Listo para más?', next: 2 },
+        { id: 2, text: 'Establece tu visión y vive con propósito. Adopta creencias que te impulsen y estrategias que te transformen.', next: 3 },
+        { id: 3, text: 'Comienza a diseñar tu camino, con una simple eleccion.' }
+      ]
     }
-  }, */
-  /*
-  mounted () {
-    this.words = this.text.split(' ')
-    this.typeWords()
-  }, */
-  methods: {
-    LogingGoogle () {
-      console.log('accessGoogle')
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          // This gives you a Google Access Token. You can use it to access the Google API.
-          const credential = GoogleAuthProvider.credentialFromResult(result)
-          const token = credential.accessToken
-          // The signed-in user info.
-          const user = result.user
-          // ...
-        })
-        .catch((error) => {
-          // Handle Errors here.
-          const errorCode = error.code
-          const errorMessage = error.message
-          // The email of the user's account used.
-          const email = error.customData.email
-          // The AuthCredential type that was used.
-          const credential = GoogleAuthProvider.credentialFromError(error)
-          // ...
-        })
-    }
-
   },
-  setup () {
-    // Este componente usa un ciclo v-for para iterar sobre las palabras del texto y mostrarlas letra por letra. La función typeWords usa un bucle anidado para escribir cada letra de cada palabra y la función sleep se utiliza para simular el sonido de tecleo con un retardo de 100 milisegundos entre cada letra. La propiedad value de words se actualiza después de escribir cada letra.
-    const todos = ref<Todo[]>([
-      {
-        id: 1,
-        content: 'ct1'
-      },
-      {
-        id: 2,
-        content: 'ct2'
-      },
-      {
-        id: 3,
-        content: 'ct3'
-      },
-      {
-        id: 4,
-        content: 'ct4'
-      },
-      {
-        id: 5,
-        content: 'ct5'
-      }
-    ])
-    const meta = ref<Meta>({
-      totalCount: 1200
-    })
-    return {
-      todos,
-      meta,
-      panel: ref('mails'),
-      step: ref(1),
-      onLeft () {
-        console.log('left')
-      }
+  methods: {
+    scrollTo (sectionId) {
+      const sectionElement = this.$el.querySelector(`.section:nth-child(${sectionId})`)
+      sectionElement.scrollIntoView({ behavior: 'smooth' })
+    },
+    exitApp () {
+      // Código para salir de la aplicación
+    },
+    login () {
+      // Código para manejar el login
     }
   }
-})
+}
 </script>
+<style scoped lang="scss">
+.index-page {
+  .section {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; // Centra el contenido en el medio verticalmente
+    background: #091d25;
+    position: relative; // Posición relativa para el posicionamiento absoluto de la flecha
+  }
+
+  .content {
+    width: 80%;
+    max-width: 800px;
+    margin: 0 auto; // Centrado horizontal
+    // Ajuste de la altura para el contenido principal para evitar que crezca demasiado
+    padding: 20vh 0; // Proporciona espacio arriba y abajo dentro de la sección
+    box-sizing: border-box;
+
+    .text-with-led {
+      font-size: 2em; // Ajuste para el tamaño del texto
+      color: orange;
+      padding: 20px;
+      border: 3px solid orange;
+      border-radius: 15px;
+      animation: neon-orange 0.8s ease-in-out infinite alternate;
+      // Posicionamiento ajustado para mantener el cuadro en el centro
+      margin: auto 0;
+    }
+  }
+
+  // Posiciona la flecha en la parte inferior de la sección
+  .next-button {
+    position: absolute;
+    bottom: 5vh; // Ajuste para colocar la flecha cerca del final de la pantalla
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .final-content {
+    height: 33.33vh; // El último tercio de la pantalla
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .led-message {
+      font-size: 2em;
+      color: orange;
+      padding: 20px;
+      border: 5px solid orange;
+      border-radius: 15px;
+      animation: blink 1s linear infinite;
+      box-shadow: 0 0 10px orange, 0 0 20px orange, 0 0 30px orange;
+    }
+
+    .exit-button, .login-button {
+      margin-top: 50px;
+      margin-bottom: 50px;
+      justify-content: center;
+
+      width: 100%;
+      max-width: 300px;
+      padding: 15px 0;
+      border-radius: 30px;
+    }
+  }
+}
+
+.slider-link {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  padding: 15px 0;
+  border-radius: 30px;
+  text-align: center;
+  color: white;
+  background-color: orange;
+  text-decoration: none;
+  transition: transform 0.3s ease-in-out;
+
+  &:hover {
+    transform: translateX(10px); // Desliza el botón hacia la derecha al pasar el mouse
+  }
+}
+
+// Responsividad para dispositivos más pequeños
+@media (max-width: 768px) {
+  .index-page .content .text-with-led {
+    font-size: 1.5em; // Tamaño más pequeño para tabletas y móviles
+  }
+  .index-page .final-content .led-message {
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 480px) {
+  .index-page .content .text-with-led {
+    font-size: 1.2em; // Tamaño más pequeño para teléfonos móviles
+  }
+  .index-page .final-content .led-message {
+    font-size: 1.2em;
+  }
+}
+
+// Keyframes para animaciones
+@keyframes blink {
+  50% { color: #091d25; }
+}
+
+@keyframes neon-orange {
+  from {
+    box-shadow: 0 0 5px orange, 0 0 10px orange, 0 0 15px orange;
+    color: #ff9800;
+    border-color: #ff9800;
+  }
+  to {
+    box-shadow: 0 0 10px #ff9800, 0 0 15px #ff9800, 0 0 20px #ff9800;
+    color: orange;
+    border-color: orange;
+  }
+}
+</style>

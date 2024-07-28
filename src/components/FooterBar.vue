@@ -1,10 +1,19 @@
 <template>
   <q-layout view="lHh lpr lFf" container style="height: 50px" class="shadow-2 align-center bg-primary rounded-borders">
 
-  <q-footer elevated class="bg-secundary-8 text-white">
+  <q-footer elevated class="bg-secundary-8 text-white"  v-if="userGoogle">
 
         <q-toolbar>
-
+        <q-btn
+          label="Declaraciones"
+          color="secondary"
+          @click="goToDeclaraciones"
+        />
+        <q-btn
+          label="Viaje"
+          color="secondary"
+          @click="goToViaje"
+        />
             <q-btn
           label="Salir"
           color="secondary"
@@ -59,4 +68,13 @@ const logoutGoogle = () => {
       // An error happened.
     })
 }
+
+const goToDeclaraciones = () => {
+  router.push('/declaraciones')
+}
+
+const goToViaje = () => {
+  router.push('/viaje')
+}
+
 </script>

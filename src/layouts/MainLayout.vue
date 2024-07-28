@@ -1,7 +1,7 @@
 <template>
 
    <NavBar> </NavBar>
-  <q-layout view="lHh lpr lFf" container style="min-height: 650px" class="shadow-2 align-center bg-primary rounded-borders">
+  <q-layout view="lHh lpr lFf" container style="min-height: 500px" class="shadow-2 align-center bg-primary rounded-borders">
 
     <q-page-container>
       <router-view />

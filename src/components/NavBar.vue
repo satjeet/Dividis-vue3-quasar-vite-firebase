@@ -1,14 +1,11 @@
 <template>
-  <q-layout view="lHh lpr lFf" container style="height: 150px" class="shadow-2 align-center bg-primary rounded-borders">
-    <q-header reveal elevated class="bg-primary text-white" height-hint="98" >
-      <q-toolbar >
-
-          <q-toolbar-title >
-            Diseña una vida que Disfrutes
-
-          </q-toolbar-title>
-
-        </q-toolbar>
+  <q-layout view="lHh lpr lFf" container :style="`height: ${userGoogle ? '150px' : '98px'}`" class="shadow-2 align-center bg-primary rounded-borders">
+    <q-header reveal elevated class="bg-primary text-white" :height-hint="userGoogle ? '150' : '98'">
+      <q-toolbar>
+        <q-toolbar-title>
+          Diseña una vida que Disfrutes
+        </q-toolbar-title>
+      </q-toolbar>
       <q-toolbar inset v-if="userGoogle">
             <q-toolbar-title>
 

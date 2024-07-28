@@ -1,11 +1,23 @@
 <template>
 
   <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
+
+<div class="column" style="height: 500px">
+  <div class="col-2">
+         <div v-if="category && pilar" class="text-h5 q-mb-md">
+        {{ category }} > {{ pilar }}
+      </div>
+      </div>
+      <div class="col-2">
+        <add-sentence :category="category" :pilar="pilar" />
+      </div>
+      <div class="col-auto">
+       <pilar-sentences :category="category" :pilar="pilar" />
+      </div>
+      <div class="col-2">
         <BotonGuardadoFirebase/>
-
-    <pilar-sentences :category="category" :pilar="pilar" />
-
-    <add-sentence :category="category" :pilar="pilar" />
+      </div>
+    </div>
 
   </div>
 

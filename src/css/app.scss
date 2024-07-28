@@ -3,12 +3,26 @@
 //VARIABLES
 $bg: #2980b9;
 $color: #2c3e50;
-$mt: 100px;
+$mt: 10px;
 $fs: 50px;
 $fs2: 2em;
 $fs3: 1.5em;
 $res: 850px;
 $res2: 550px;
+$matrix-blue: #0d1b2a;
+
+$matrix-fondo: #091d25  ;
+$matrix-neon:  #091d25 ;
+$matrix-orange: #fea444;
+
+$primary-color: #2980b9; // Un azul para el fondo
+$secondary-color: #2c3e50; // Un azul más oscuro para el texto
+$overlay-color: rgba(0, 0, 0, 0.7); // Un overlay más oscuro para mejor contraste
+$text-color: #ffffff; // Texto blanco para mejor legibilidad
+$font-size-large: 1.5rem;
+$font-size-medium: 1.1rem;
+$font-size-small: 0.9rem;
+
 
 h1 {
   color: $color;
