@@ -8,9 +8,30 @@
         <!-- Flechas solo en secciones antes de la final -->
         <q-btn v-if="section.next" @click="scrollTo(section.next)" icon="south" color="orange" round dense class="next-button" />
         <div v-if="section.id === 3" class="final-content">
-          <a href="URL_PARA_SALIR" class="exit-button slider-link">Salir</a>
-          <div class="led-message">{{ section.text }}</div>
-          <a href="URL_PARA_LOGIN" class="login-button slider-link">Login</a>
+          <q-btn href="https://www.youtube.com/watch?v=VPRjCeoBqrI&list=PLVLTpK34Hy3kr2h9twqWdApiKxpfhn9Rh&index=1&ab_channel=Coldplay"  class="exit-button slider-link" icon="logout" label="Regresar a mi zona de confort" />
+          <div class="led-message q-mt-md">{{ section.text }}</div>
+
+          <div class="q-pa-md">
+
+            <q-list bordered separator>
+
+              <q-slide-item class="led-message text-with-led slider-link" left-color="black" @left="LogingGoogle">
+                <template v-slot:left>
+
+                  <q-icon name="sentiment_very_satisfied" />
+                  QUE DISFRUTES EL VIAJE
+                </template>
+
+                <q-item >
+                  <q-item-section avatar>
+                     <q-icon name="start" />
+                  </q-item-section>
+                  <q-item-section>Comenzar</q-item-section>
+                </q-item>
+              </q-slide-item>
+
+              </q-list>
+            </div>
 
         </div>
       </div>
@@ -98,17 +119,16 @@ export default {
       border: 5px solid orange;
       border-radius: 15px;
       animation: blink 1s linear infinite;
+      background-color: black;
+
       box-shadow: 0 0 10px orange, 0 0 20px orange, 0 0 30px orange;
     }
 
     .exit-button, .login-button {
-      margin-top: 50px;
-      margin-bottom: 50px;
-      justify-content: center;
-
+      font-size: 10px;
+      text-align: center; /* Centra el texto horizontalmente */
       width: 100%;
-      max-width: 300px;
-      padding: 15px 0;
+      max-width: 200px;
       border-radius: 30px;
     }
   }
@@ -118,7 +138,7 @@ export default {
   display: block;
   width: 100%;
   max-width: 300px;
-  padding: 15px 0;
+  padding: 5px 0;
   border-radius: 30px;
   text-align: center;
   color: white;
