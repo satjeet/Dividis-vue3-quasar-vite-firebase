@@ -4,37 +4,35 @@
 
 <script setup lang="ts">
 import { ref, provide } from 'vue'
-
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from './firebase'
+import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
-// import { useRouter } from 'vue-router'
-// const router = useRouter()
 
 const userGoogle = ref(undefined)
 provide('userGoogle', userGoogle)
+
 const $q = useQuasar()
+const router = useRouter() // Asegúrate de importar el enrutador
+
 onAuthStateChanged(auth, (user) => {
   if (user) {
-  // User is signed in, see docs for a list of available properties
-  // https://firebase.google.com/docs/reference/js/firebase.User
-  // const uid = user.uid;
     userGoogle.value = user
-    // router.push('/viaje')
-    console.log(user)
-    setTimeout(() => {
-      $q.loading.hide()
-    }, 1000)
-  // ...
-  } else {
-    setTimeout(() => {
-      $q.loading.hide()
-    }, 1000)
+    console.log('Usuario autenticado:', user)
 
-  // User is signed out
-  // ...
+    // Redirige a la ruta /viaje cuando el usuario esté autenticado
+    setTimeout(() => {
+      router.push('/viaje') // Redirige a la ruta protegida
+      $q.loading.hide()
+    }, 1000)
+  } else {
+    // Si el usuario no está autenticado, oculta el loader
+    setTimeout(() => {
+      $q.loading.hide()
+    }, 1000)
   }
 })
-$q.loading.show()
 
+// Muestra el loader mientras se verifica el estado de autenticación
+$q.loading.show()
 </script>

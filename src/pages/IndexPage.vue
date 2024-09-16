@@ -8,21 +8,18 @@
         <!-- Flechas solo en secciones antes de la final -->
         <q-btn v-if="section.next" @click="scrollTo(section.next)" icon="south" color="orange" round dense class="next-button" />
         <div v-if="section.id === 3" class="final-content">
-          <q-btn href="https://www.youtube.com/watch?v=VPRjCeoBqrI&list=PLVLTpK34Hy3kr2h9twqWdApiKxpfhn9Rh&index=1&ab_channel=Coldplay"  class="exit-button slider-link" icon="logout" label="Regresar a mi zona de confort" />
+          <q-btn href="https://www.youtube.com/watch?v=VPRjCeoBqrI&list=PLVLTpK34Hy3kr2h9twqWdApiKxpfhn9Rh&index=1&ab_channel=Coldplay" class="exit-button slider-link" icon="logout" label="Regresar a mi zona de confort" />
           <div class="led-message q-mt-md">{{ section.text }}</div>
 
           <div class="q-pa-md">
-
             <q-list bordered separator>
-
-              <q-slide-item class="led-message text-with-led slider-link" left-color="black" @left="LogingGoogle">
+              <!-- Si el usuario NO está autenticado, mostrar el botón para iniciar sesión -->
+              <q-slide-item class="led-message text-with-led slider-link" left-color="black" v-if="!userGoogle" @left="LogingGoogle">
                 <template v-slot:left>
-
                   <q-icon name="sentiment_very_satisfied" />
                   QUE DISFRUTES EL VIAJE
                 </template>
-
-                <q-item >
+                <q-item @click="LogingGoogle">
                   <q-item-section avatar>
                      <q-icon name="start" />
                   </q-item-section>
@@ -30,9 +27,21 @@
                 </q-item>
               </q-slide-item>
 
-              </q-list>
-            </div>
-
+              <!-- Si el usuario está autenticado, mostrar su nombre y opción para comenzar -->
+              <q-slide-item class="led-message text-with-led slider-link" left-color="black" v-if="userGoogle">
+                <template v-slot:left>
+                  <q-icon name="sentiment_very_satisfied" />
+                  Bienvenido, {{ userGoogle.displayName || userGoogle.email }}
+                </template>
+                <q-item @click="startJourney">
+                  <q-item-section avatar>
+                     <q-icon name="start" />
+                  </q-item-section>
+                  <q-item-section>Comenzar</q-item-section>
+                </q-item>
+              </q-slide-item>
+            </q-list>
+          </div>
         </div>
       </div>
     </div>
@@ -40,31 +49,59 @@
 </template>
 
 <script>
+import { inject } from 'vue'
+import { useQuasar } from 'quasar'
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
+import { auth } from 'src/firebase'
+
 export default {
   name: 'IndexPage',
-  data () {
+  setup () {
+    const userGoogle = inject('userGoogle') // Obtenemos el estado del usuario
+    const $q = useQuasar() // Asegúrate de que Quasar Notify está habilitado
+
+    const LogingGoogle = async () => {
+      try {
+        const provider = new GoogleAuthProvider()
+        await signInWithPopup(auth, provider)
+        $q.notify({
+          type: 'positive',
+          message: 'Inicio de sesión exitoso. ¡Bienvenido!'
+        })
+      } catch (error) {
+        console.error('Error en el inicio de sesión:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Error al iniciar sesión con Google'
+        })
+      }
+    }
+
+    const startJourney = () => {
+      // Redirigir al viaje si el usuario está autenticado
+      if (userGoogle) {
+        this.$router.push('/viaje')
+      }
+    }
+
     return {
       sections: [
         { id: 1, text: 'Los sueños sin plan son solo deseos. ¿Listo para más?', next: 2 },
         { id: 2, text: 'Establece tu visión y vive con propósito. Adopta creencias que te impulsen y estrategias que te transformen.', next: 3 },
         { id: 3, text: 'Comienza a diseñar tu camino, con una simple eleccion.' }
-      ]
-    }
-  },
-  methods: {
-    scrollTo (sectionId) {
-      const sectionElement = this.$el.querySelector(`.section:nth-child(${sectionId})`)
-      sectionElement.scrollIntoView({ behavior: 'smooth' })
-    },
-    exitApp () {
-      // Código para salir de la aplicación
-    },
-    login () {
-      // Código para manejar el login
+      ],
+      userGoogle,
+      LogingGoogle,
+      startJourney,
+      scrollTo (sectionId) {
+        const sectionElement = this.$el.querySelector(`.section:nth-child(${sectionId})`)
+        sectionElement.scrollIntoView({ behavior: 'smooth' })
+      }
     }
   }
 }
 </script>
+
 <style scoped lang="scss">
 .index-page {
   .section {
