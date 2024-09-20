@@ -1,10 +1,7 @@
 <template>
   <div>
-    <label>
-      New sentence:
-      <input type="text" v-model="sentence" />
-    </label>
-    <button @click="addSentence">Declarar</button>
+    <q-input v-model="sentence" label="Declare aqui" dark class="text-white" />
+    <q-btn label="Declarar" @click="addSentence" />
 
   </div>
 </template>
