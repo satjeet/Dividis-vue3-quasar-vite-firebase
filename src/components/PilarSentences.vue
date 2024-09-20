@@ -1,10 +1,14 @@
 <template>
   <div>
     <ul>
-      <li v-for="(sentence, index) in sentences" :key="index">
-        {{ sentence }}
-        <button @click="editSentence(index)">Edit</button>
-        <button @click="deleteSentence(index)">Delete</button>
+      <li v-for="(sentence, index) in sentences" :key="index" class="q-py-sm">
+        <q-row style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="text-left">{{ sentence }}</div>
+          <div>
+            <q-btn flat round dense icon="edit" @click="editSentence(index)"></q-btn>
+            <q-btn flat round dense icon="delete" @click="deleteSentence(index)"></q-btn>
+          </div>
+        </q-row>
       </li>
     </ul>
     <div v-if="editingIndex !== null">
@@ -12,8 +16,8 @@
         Edita la sentencia:
         <input type="text" v-model="editingSentence" />
       </label>
-      <button @click="saveEdit">Save</button>
-      <button @click="cancelEdit">Cancel</button>
+      <q-btn label="Save" @click="saveEdit"></q-btn>
+      <q-btn label="Cancel" @click="cancelEdit"></q-btn>
     </div>
   </div>
 </template>
