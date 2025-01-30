@@ -121,9 +121,11 @@ module.exports = configure(function (/* ctx */) {
         'QItemSection',
         'QItemLabel',
         'QBadge',
-        'QRow', // Asegúrate de incluir QRow aquí
-        'QCol', // Asegúrate de incluir QCol aquí si lo usas
         'QInput', // Asegúrate de incluir QInput aquí si lo usas
+        'QDialog', // Asegúrate de incluir QDialog aquí si lo usas
+        'QCard', // Asegúrate de incluir QCard aquí si lo usas
+        'QCardSection', // Asegúrate de incluir QCardSection aquí si lo usas
+        'QCardActions'  // Asegúrate de incluir QInput aquí si lo usas
         // Agrega otros componentes que estés utilizando
       ],
       // directives: [],
