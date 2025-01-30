@@ -1,9 +1,7 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_apiKey,
   authDomain: import.meta.env.VITE_authDomain,
@@ -15,12 +13,10 @@ const firebaseConfig = {
 
 console.log('firebaseConfig', firebaseConfig)
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 
-// Function to login with Google
 const provider = new GoogleAuthProvider()
 
 export const loginWithGoogle = async () => {
@@ -34,5 +30,4 @@ export const loginWithGoogle = async () => {
   }
 }
 
-// Export the authentication and Firestore instances
 export { auth, db }

@@ -1,39 +1,38 @@
-//Boton de guardado con contador de cambios sin guardar.
 <template>
-<div class="q-pa-md q-gutter-sm">
+  <div class="q-pa-md q-gutter-sm">
     <q-btn :disabled="isDisabled" @click="guardarCambios" push color="white" text-color="primary" label="Grabar Cambios en la nube">
-      <q-badge color="orange" floating>{{cambiosSinGuardar}}</q-badge>
+      <q-badge v-if="cambiosSinGuardar > 0" color="orange" floating>{{ cambiosSinGuardar }}</q-badge>
     </q-btn>
-
   </div>
-
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch } from 'vue'
+import { defineComponent, computed } from 'vue'
 import { useViajeStore } from '../stores/viaje-store'
 import { storeToRefs } from 'pinia'
+import { Notify } from 'quasar'
+
 export default defineComponent({
-  // Definición de las props que recibe el componente
-  props: {
-
-  },
   setup () {
-    // Uso del store de Vuex para manejar los datos de la aplicación
     const store = useViajeStore()
-    // Creación de una referencia reactiva para la oración que se va a agregar
-    /* const cambiosSinGuardar = computed(() => {
-      return store.state.cambiosSinGuardar || 0
-    }) */
-    const isDisabled = computed(() => {
-      return store.isContadorCero
-    })
-
     const { cambiosSinGuardar } = storeToRefs(store)
-    function guardarCambios () {
-      store.guardarCambiosFirebase()
+    const isDisabled = computed(() => store.isContadorCero)
+
+    async function guardarCambios () {
+      try {
+        await store.guardarCambiosFirebase()
+        Notify.create({
+          type: 'positive',
+          message: 'Cambios guardados exitosamente'
+        })
+      } catch (error) {
+        Notify.create({
+          type: 'negative',
+          message: 'Error al guardar los cambios'
+        })
+      }
     }
-    // Retorno de los datos y funciones que se utilizarán en la plantilla
+
     return { guardarCambios, cambiosSinGuardar, isDisabled }
   }
 })
