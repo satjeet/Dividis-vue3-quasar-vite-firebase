@@ -23,7 +23,8 @@ export const useViajeStore = defineStore({
     cambiosSinGuardar: 0 as number,
     datosCargados: false as boolean,
     categoriaSeleccionada: '' as string,
-    pilarSeleccionado: '' as string
+    pilarSeleccionado: '' as string,
+    pilars: ['Vision', 'Proposito', 'Creencias', 'Estrategias'] as string[]
   }),
   getters: {
     SumarCambiosSinGuardar: (state) => state.cambiosSinGuardar + 1,
@@ -116,3 +117,7 @@ export const useViajeStore = defineStore({
     }
   }
 })
+
+
+
+

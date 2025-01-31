@@ -2,13 +2,13 @@
   <div>
     <ul>
       <li v-for="(sentence, index) in sentences" :key="index" class="q-py-sm">
-        <q-row style="display: flex; justify-content: space-between; align-items: center;">
-          <div class="text-left">{{ sentence }}</div>
-          <div>
-            <q-btn flat round dense icon="edit" @click="editSentence(index)"></q-btn>
-            <q-btn flat round dense icon="delete" @click="deleteSentence(index)"></q-btn>
+        <div class="row" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="col text-left">{{ sentence }}</div>
+          <div class="col-auto">
+            <q-btn flat="" round="" dense="" icon="edit" @click="editSentence(index)"></q-btn>
+            <q-btn flat="" round="" dense="" icon="delete" @click="deleteSentence(index)"></q-btn>
           </div>
-        </q-row>
+        </div>
       </li>
     </ul>
     <div v-if="editingIndex !== null">
@@ -80,3 +80,5 @@ export default defineComponent({
   }
 })
 </script>
+
+
