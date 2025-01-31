@@ -1,27 +1,29 @@
 <template>
-  <div class="row justify-between q-pa-md">
+  <div class="navigation-container">
     <q-btn
       flat
       round
       dense
-      icon="arrow_back"
       @click="prevPilar"
       :disable="!hasPrevPilar"
-      :label="prevPilarName"
-      :tooltip="prevPilarName"
+      class="left-btn"
       color="white"
-    />
+    >
+      <q-icon name="arrow_back" />
+      <span>{{ prevPilarName }}</span>
+    </q-btn>
     <q-btn
       flat
       round
       dense
-      icon="arrow_forward"
       @click="nextPilar"
       :disable="!hasNextPilar"
-      :label="nextPilarName"
-      :tooltip="nextPilarName"
+      class="right-btn"
       color="white"
-    />
+    >
+      <span>{{ nextPilarName }}</span>
+      <q-icon name="arrow_forward" />
+    </q-btn>
   </div>
 </template>
 
@@ -87,12 +89,26 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.row {
+.navigation-container {
+  position: absolute;
+  top: -30px; /* Ajustar para que esté 10px por encima del header */
+  width: 100%;
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px;
+}
+.left-btn {
+  display: flex;
+  align-items: center;
+}
+.right-btn {
+  display: flex;
+  align-items: center;
 }
 </style>
+
 
 
 

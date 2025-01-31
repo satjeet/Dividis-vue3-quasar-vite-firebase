@@ -2,6 +2,7 @@
   <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
     <div class="column" style="height: 500px; position: relative;">
       <PilarNavigation :category="category" :pilar="pilar" @update:pilar="updatePilar" />
+      <div class="spacer"></div>
       <CategoryPilarHeader :category="category" :pilar="pilar" />
       <AddSentenceSection :category="category" :pilar="pilar" />
       <PilarSentencesSection :category="category" :pilar="pilar" />
@@ -56,6 +57,15 @@
   }
   })
 </script>
+
+<style scoped="">
+  .spacer {
+  height: 10px; /* Ajustar para bajar la altura del CategoryPilarHeader */
+  }
+</style>
+
+
+
 
 
 
