@@ -1,8 +1,7 @@
-
 <template>
   <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
-
     <div>
+      <RecognitionMessage />
       <div class="q-pa-md">
         <q-carousel
           v-model="slide"
@@ -29,7 +28,7 @@
           <CarouselCard name="map" title="Finanzas" icon="attach_money" />
           <CarouselCard name="Carrera" title="Carrera" icon="insights" />
           <CarouselCard name="emocion" title="Emocionalidad" icon="color_lens" />
-          <CarouselCard name="calidad" title="Calidad de Vida" icon="flare" />
+          <CarouselCard name="calidad" title="Calidad De Vida" icon="flare" />
           <CarouselCard name="relaciones" title="Relaciones" icon="diversity_1" />
           <CarouselCard name="vision" title="Vision" icon="brightness_low" />
 
@@ -46,14 +45,13 @@
         no-caps
       />
     </div>
-
   </div>
-
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import CarouselCard from 'components/CarouselCard.vue'
+import RecognitionMessage from 'components/RecognitionMessage.vue'
 import { useViajeStore } from '../stores/viaje-store'
 
 export default defineComponent({
@@ -69,12 +67,26 @@ export default defineComponent({
 
     }
   },
-  components: { CarouselCard }
+  components: { CarouselCard, RecognitionMessage }
 })
 </script>
 
-<style lang="sass" scoped>
-.my-card
-  width: 100%
-  max-width: 250px
+<style lang="scss" scoped>
+.my-card {
+  width: 100%;
+  max-width: 250px;
+}
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
