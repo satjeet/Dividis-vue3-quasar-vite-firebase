@@ -1,0 +1,101 @@
+@use "sass:map";
+
+$themes: (
+  'orange': (
+    primary: #ff9800,
+    secondary: #ff5722,
+    negative: #f44336,
+    dark: #212121,
+    medium: #757575,
+    light: #f5f5f5,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #ffeb3b,
+    marginal-bg: #ffcc80,
+    marginal-text: #ffffff,
+    marginal-btn: #ff9800,
+    marginal-btn-active: #ff5722,
+    bg-primary: #ff9800,
+  ),
+  'blue': (
+    primary: #2196f3,
+    secondary: #03a9f4,
+    negative: #e91e63,
+    dark: #0d47a1,
+    medium: #1976d2,
+    light: #bbdefb,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #64b5f6,
+    marginal-bg: #90caf9,
+    marginal-text: #ffffff,
+    marginal-btn: #2196f3,
+    marginal-btn-active: #03a9f4
+  ),
+  'green': (
+    primary: #4caf50,
+    secondary: #8bc34a,
+    negative: #f44336,
+    dark: #1b5e20,
+    medium: #388e3c,
+    light: #c8e6c9,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #aed581,
+    marginal-bg: #a5d6a7,
+    marginal-text: #ffffff,
+    marginal-btn: #4caf50,
+    marginal-btn-active: #8bc34a
+  ),
+  'purple': (
+    primary: #9c27b0,
+    secondary: #673ab7,
+    negative: #e91e63,
+    dark: #4a148c,
+    medium: #7b1fa2,
+    light: #e1bee7,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #ba68c8,
+    marginal-bg: #ce93d8,
+    marginal-text: #ffffff,
+    marginal-btn: #9c27b0,
+    marginal-btn-active: #673ab7
+  ),
+  'red': (
+    primary: #f44336,
+    secondary: #e53935,
+    negative: #b71c1c,
+    dark: #d32f2f,
+    medium: #e57373,
+    light: #ffcdd2,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #ff8a80,
+    marginal-bg: #ef9a9a,
+    marginal-text: #ffffff,
+    marginal-btn: #f44336,
+    marginal-btn-active: #e53935
+  )
+);
+
+@function get-theme($theme-name) {
+  @return map.get($themes, $theme-name);
+}
+
+@function get-theme-color($theme-name, $color-name) {
+  $theme: get-theme($theme-name);
+  @return map.get($theme, $color-name);
+}
+
+@each $theme, $colors in $themes {
+  [data-theme="#{$theme}"] {
+    @each $name, $color in $colors {
+      .bg-#{$name} {
+        background: $color !important;
+      }
+    }
+
+    // Quasar component overrides
+    .q-field__control,
+    .q-item--active {
+      color: map.get($colors, primary) !important;
+    }
+  }
+}
+

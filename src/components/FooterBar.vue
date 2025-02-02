@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh lpr lFf" container style="height: 50px" class="shadow-2 align-center bg-primary rounded-borders">
 
-  <q-footer elevated class="bg-secundary-8 text-white"  v-if="userGoogle">
+  <q-footer elevated class="bg-primary text-white"  v-if="userGoogle">
 
         <q-toolbar>
         <q-btn
