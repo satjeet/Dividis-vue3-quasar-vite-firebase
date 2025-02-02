@@ -8,7 +8,7 @@
 
       <q-separator />
 
-      <q-card-actions vertical class="my-card bg-accent text-white">
+      <q-card-actions vertical class="my-card bg-primary text-white">
         <router-link
           v-for="(pilar, index) in pilars"
           :key="index"
