@@ -13,5 +13,8 @@
     "vue"
   ],
   "typescript.tsdk": "node_modules/typescript/lib",
-  "CodeGPT.apiKey": "Ollama"
+  "CodeGPT.apiKey": "Ollama",
+  "[vue]": {
+    "editor.defaultFormatter": "Vue.volar"
+  }
 }
