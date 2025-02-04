@@ -28,10 +28,10 @@ export default defineComponent({
       { name: 'Estilo Púrpura', key: 'purple' },
       { name: 'Estilo Rojo', key: 'red' },
       { name: 'Estilo Oscuro', key: 'dark' },
-      { name: 'Estilo Iridiscente', key: 'iridescent' },
-      { name: 'Estilo Dorado', key: 'gold' },
-      { name: 'Estilo Diamante', key: 'diamond' },
-      { name: 'Estilo Astronauta', key: 'astronaut' }
+     // { name: 'Estilo Iridiscente', key: 'iridescent' },
+      { name: 'Estilo Gold', key: 'gold' },
+      //{ name: 'Estilo Diamante', key: 'diamond' },
+      //{ name: 'Estilo Astronauta', key: 'astronaut' }
     ]
 
     function toggleMenu() {
