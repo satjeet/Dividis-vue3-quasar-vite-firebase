@@ -1,5 +1,5 @@
 <template>
-  <div class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center">
+  <div class="fullscreen text-white text-center q-pa-md flex flex-center">
     <div class="column" style="height: 500px; position: relative;">
       <PilarNavigation :category="category" :pilar="pilar" @update:pilar="updatePilar" />
       <div class="spacer"></div>

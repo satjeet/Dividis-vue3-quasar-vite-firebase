@@ -23,7 +23,7 @@
                   <q-item-section avatar>
                      <q-icon name="start" />
                   </q-item-section>
-                  <q-item-section>Comenzar</q-item-section>
+                  <q-item-section>Desliza pra comenzar</q-item-section>
                 </q-item>
               </q-slide-item>
 
