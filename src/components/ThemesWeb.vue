@@ -11,7 +11,6 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
 import { useQuasar } from 'quasar'
@@ -23,11 +22,16 @@ export default defineComponent({
     const menu = ref(false)
     const selectedTheme = ref(null)
     const themes = [
-      { name: 'Estilo 1', key: 'orange', primary: '#ff9800', secondary: '#ff5722', accent: '#82b1ff' },
-      { name: 'Estilo 2', key: 'blue', primary: '#2196f3', secondary: '#03a9f4', accent: '#ff5722' },
-      { name: 'Estilo 3', key: 'green', primary: '#4caf50', secondary: '#8bc34a', accent: '#9c27b0' },
-      { name: 'Estilo 4', key: 'purple', primary: '#9c27b0', secondary: '#673ab7', accent: '#e91e63' },
-      { name: 'Estilo 5', key: 'red', primary: '#f44336', secondary: '#e53935', accent: '#e91e63' }
+      { name: 'Estilo Naranja', key: 'orange' },
+      { name: 'Estilo Azul', key: 'blue' },
+      { name: 'Estilo Verde', key: 'green' },
+      { name: 'Estilo Púrpura', key: 'purple' },
+      { name: 'Estilo Rojo', key: 'red' },
+      { name: 'Estilo Oscuro', key: 'dark' },
+      { name: 'Estilo Iridiscente', key: 'iridescent' },
+      { name: 'Estilo Dorado', key: 'gold' },
+      { name: 'Estilo Diamante', key: 'diamond' },
+      { name: 'Estilo Astronauta', key: 'astronaut' }
     ]
 
     function toggleMenu() {
@@ -65,3 +69,34 @@ export default defineComponent({
   z-index: 1000; /* Asegura que el menú está por encima de otros elementos */
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

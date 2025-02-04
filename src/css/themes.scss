@@ -72,6 +72,76 @@ $themes: (
     marginal-text: #ffffff,
     marginal-btn: #f44336,
     marginal-btn-active: #e53935
+  ),
+  'dark': (
+    primary: #121212,
+    secondary: #1e1e1e,
+    negative: #ff5252,
+    dark: #000000,
+    medium: #333333,
+    light: #444444,
+    backdrop: rgba(0, 0, 0, 0.8),
+    active: #bb86fc,
+    marginal-bg: #2c2c2c,
+    marginal-text: #ffffff,
+    marginal-btn: #121212,
+    marginal-btn-active: #1e1e1e
+  ),
+  'iridescent': (
+    primary: #3a1c71,
+    secondary: #d76d77,
+    negative: #ffaf7b,
+    dark: #2c3e50,
+    medium: #bdc3c7,
+    light: #ecf0f1,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #f39c12,
+    marginal-bg: #8e44ad,
+    marginal-text: #ffffff,
+    marginal-btn: #3a1c71,
+    marginal-btn-active: #d76d77
+  ),
+  'gold': (
+    primary: #ffd700,
+    secondary: #b8860b,
+    negative: #ff8c00,
+    dark: #000000,
+    medium: #daa520,
+    light: #fffacd,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #ffec8b,
+    marginal-bg: #ffd700,
+    marginal-text: #ffffff,
+    marginal-btn: #ffd700,
+    marginal-btn-active: #b8860b
+  ),
+  'diamond': (
+    primary: #00ced1,
+    secondary: #b9f2ff,
+    negative: #4682b4,
+    dark: #2c3e50,
+    medium: #87cefa,
+    light: #f0f8ff,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #afeeee,
+    marginal-bg: #b9f2ff,
+    marginal-text: #ffffff,
+    marginal-btn: #00ced1,
+    marginal-btn-active: #b9f2ff
+  ),
+  'astronaut': (
+    primary: #1e90ff,
+    secondary: #ffffff,
+    negative: #ff4500,
+    dark: #000080,
+    medium: #4169e1,
+    light: #87ceeb,
+    backdrop: rgba(0, 0, 0, 0.5),
+    active: #00bfff,
+    marginal-bg: #ffffff,
+    marginal-text: #000000,
+    marginal-btn: #1e90ff,
+    marginal-btn-active: #ffffff
   )
 );
 
@@ -99,4 +169,10 @@ $themes: (
     }
   }
 }
+
+
+
+
+
+
 
