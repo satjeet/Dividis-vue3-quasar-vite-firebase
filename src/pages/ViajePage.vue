@@ -7,19 +7,19 @@
           v-model="slide"
           transition-prev="scale"
           transition-next="scale"
-          swipeable
-          animated
+          swipeable=""
+          animated=""
           control-color="white"
-          navigation
-          padding
-          arrows
-          infinite
+          navigation=""
+          padding=""
+          arrows=""
+          infinite=""
           height="600px"
           class="bg-primary text-white shadow-1 rounded-borders"
         >
           <template v-slot:navigation-icon="{ active, btnProps, onClick }">
-            <q-btn v-if="active" size="lg" icon="where_to_vote" color="yellow" flat round dense @click="onClick" />
-            <q-btn v-else size="sm" :icon="btnProps.icon" color="white" flat round dense @click="onClick" />
+            <q-btn v-if="active" size="lg" icon="where_to_vote" color="yellow" flat="" round="" dense="" @click="onClick" />
+            <q-btn v-else="" size="sm" :icon="btnProps.icon" color="white" flat="" round="" dense="" @click="onClick" />
           </template>
 
           <CarouselCard name="style" title="Salud" icon="favorite" />
@@ -35,48 +35,46 @@
         </q-carousel>
       </div>
 
-      <q-btn
-        class="q-mt-xl"
-        color="white"
-        text-color="blue"
-        unelevated
-        to="/"
-        label="Go Home"
-        no-caps
-      />
+      
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
-import CarouselCard from 'components/CarouselCard.vue'
-import RecognitionMessage from 'components/RecognitionMessage.vue'
-import { useViajeStore } from '../stores/viaje-store'
+  import { defineComponent, ref } from 'vue'
+  import CarouselCard from 'components/CarouselCard.vue'
+  import RecognitionMessage from 'components/RecognitionMessage.vue'
+  import { useViajeStore } from '../stores/viaje-store'
 
-export default defineComponent({
+  export default defineComponent({
   name: 'ViajePage',
   mounted () {
-    const store = useViajeStore()
-    store.cargaInicialColeccionFirebase()
+  const store = useViajeStore()
+  store.cargaInicialColeccionFirebase()
   },
   setup () {
-    return {
-      slide: ref('style'),
-      lorem: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo.'
+  return {
+  slide: ref('style'),
+  lorem: 'Lorem ipsum dolor, sit amet consectetur adipisicing elit. Itaque voluptatem totam, architecto cupiditate officia rerum, error dignissimos praesentium libero ab nemo.'
 
-    }
+  }
   },
   components: { CarouselCard, RecognitionMessage }
-})
+  })
 </script>
 
-<style lang="scss" scoped>
-.my-card {
+<style lang="scss" scoped="">
+  .my-card {
   width: 100%;
-  max-width: 250px;
-}
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  }
 </style>
+
+
+
+
 
 
 
