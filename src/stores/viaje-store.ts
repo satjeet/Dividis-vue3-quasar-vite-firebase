@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { auth, db } from '../firebase'
-import { doc, setDoc, getDoc, collection, addDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { useUserStore } from './user-store'
 
 interface Pilar {
   name: string;
@@ -65,6 +66,18 @@ export const useViajeStore = defineStore({
           }
         }
       }
+
+      // Actualizar experiencia y desbloqueos
+      const userStore = useUserStore()
+      userStore.addExperience(50)
+      if (pilarName === 'Vision') {
+        userStore.unlockPilar(categoryName, 'Proposito')
+      } else if (pilarName === 'Proposito') {
+        userStore.unlockPilar(categoryName, 'Creencias')
+      } else if (pilarName === 'Creencias') {
+        userStore.unlockPilar(categoryName, 'Estrategias')
+      }
+      userStore.saveUserData()
     },
     editSentence (categoryName: string, pilarName: string, sentenceIndex: number, sentence: string) {
       this.cambiosSinGuardar += 1
@@ -82,17 +95,20 @@ export const useViajeStore = defineStore({
       const usuarioId = auth.currentUser?.uid
       if (usuarioId) {
         // Guardar los cambios en Firebase
-        await setDoc(doc(db, 'usuarios', usuarioId), {
+        await setDoc(doc(db, 'usuarios', usuarioId, 'datos', 'categories'), {
           categories: this.categories
-        })
+        }, { merge: true })
       }
       this.cambiosSinGuardar = 0
     },
     async cargaInicialColeccionFirebase () {
+      const userStore = useUserStore()
+      await userStore.loadUserData()
+
       if (!this.datosCargados) {
         const usuarioId = auth.currentUser?.uid
         if (usuarioId) {
-          const categoriesRef = doc(db, 'usuarios', usuarioId)
+          const categoriesRef = doc(db, 'usuarios', usuarioId, 'datos', 'categories')
           const docSnap = await getDoc(categoriesRef)
           if (docSnap.exists()) {
             const categoriesData: FirebaseCategoriesData = docSnap.data() as FirebaseCategoriesData
@@ -108,16 +124,15 @@ export const useViajeStore = defineStore({
               }
             })
             this.categories = categories
-            this.datosCargados = true
           } else {
-            console.log('No such document!')
+            // Crear un nuevo documento con datos iniciales
+            await this.guardarCambiosFirebase()
           }
+          this.datosCargados = true
         }
       }
     }
   }
 })
-
-
 
 
