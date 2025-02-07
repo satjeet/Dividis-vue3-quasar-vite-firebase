@@ -2,37 +2,50 @@
   <router-view />
 </template>
 
-<script setup lang="ts">
-import { ref, provide } from 'vue'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from './firebase'
-import { useRouter } from 'vue-router'
-import { useQuasar } from 'quasar'
+<script setup="" lang="ts">
+  import { ref, provide } from 'vue'
+  import { onAuthStateChanged } from 'firebase/auth'
+  import { auth } from './firebase'
+  import { useRouter } from 'vue-router'
+  import { useQuasar } from 'quasar'
 
-const userGoogle = ref(undefined)
-provide('userGoogle', userGoogle)
+  const userGoogle = ref(null)
+  provide('userGoogle', userGoogle)
 
-const $q = useQuasar()
-const router = useRouter() // Asegúrate de importar el enrutador
+  const $q = useQuasar()
+  const router = useRouter()
 
-onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, (user) => {
   if (user) {
-    userGoogle.value = user
-    console.log('Usuario autenticado:', user)
+  userGoogle.value = user
+  console.log('Usuario autenticado:', user)
 
-    // Redirige a la ruta /viaje cuando el usuario esté autenticado
-    setTimeout(() => {
-      router.push('/viaje') // Redirige a la ruta protegida
-      $q.loading.hide()
-    }, 1000)
+  // Redirige a la ruta /viaje cuando el usuario esté autenticado
+  setTimeout(() => {
+  router.push('/viaje')
+  $q.loading.hide()
+  }, 1000)
   } else {
-    // Si el usuario no está autenticado, oculta el loader
-    setTimeout(() => {
-      $q.loading.hide()
-    }, 1000)
+  // Si el usuario no está autenticado, oculta el loader
+  setTimeout(() => {
+  $q.loading.hide()
+  }, 1000)
   }
-})
+  })
 
-// Muestra el loader mientras se verifica el estado de autenticación
-$q.loading.show()
+  // Muestra el loader mientras se verifica el estado de autenticación
+  $q.loading.show()
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
