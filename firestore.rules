@@ -7,19 +7,10 @@ service cloud.firestore {
     }
 
     // Reglas para las declaraciones públicas
-    match /declaracionesPublicas/{declaracionId} {
+    match /declaracionesPublicas/{document=**} {
       allow read: if true;
       allow write: if request.auth != null;
     }
   }
 }
-
-
-
-
-
-
-
-
-
 
