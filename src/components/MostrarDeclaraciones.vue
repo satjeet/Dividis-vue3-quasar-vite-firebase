@@ -1,8 +1,8 @@
 <template>
-  <div class="declaraciones-container">
+  <div class="declaraciones-container" @scroll="handleScroll">
     <h2>Declaraciones</h2>
     <ul>
-      <li v-for="(declaracion, index) in declaraciones" :key="index" class="declaracion-item">
+      <li v-for="(declaracion, index) in paginatedDeclaraciones" :key="index" class="declaracion-item">
         <p><strong>Texto:</strong> {{ declaracion.texto }}</p>
         <p><strong>Categoría:</strong> {{ declaracion.categoria }}</p>
         <p><strong>Pilar:</strong> {{ declaracion.pilar }}</p>
@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, inject, onMounted, watch } from 'vue';
+import { defineComponent, ref, inject, onMounted } from 'vue';
 import { useDeclaracionesStore, Declaracion } from '../stores/declaraciones-store';
 import { useViajeStore } from '../stores/viaje-store';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -40,6 +40,8 @@ export default defineComponent({
     const viajeStore = useViajeStore();
     const userGoogle = inject('userGoogle') as any;
     const usuarioId = ref(userGoogle?.value?.uid);
+    const paginatedDeclaraciones = ref<Declaracion[]>([]);
+    const lastIndex = ref<number>(0);
 
     const react = async (declaracion: Declaracion, reaccion: keyof Declaracion['reacciones']) => {
       if (!declaracion.usuariosReaccionaron.includes(usuarioId.value)) {
@@ -72,23 +74,35 @@ export default defineComponent({
       }
     }
 
-    const cargarMasDeclaraciones = async () => {
-      await declaracionesStore.cargarMasDeclaraciones();
+    const cargarMasDeclaraciones = () => {
+      if (declaracionesStore.declaraciones.length > lastIndex.value) {
+        const nuevasDeclaraciones = declaracionesStore.declaraciones.slice(lastIndex.value, lastIndex.value + 8);
+        paginatedDeclaraciones.value.push(...nuevasDeclaraciones);
+        lastIndex.value += 8;
+        console.log('Más declaraciones cargadas:', JSON.stringify(paginatedDeclaraciones.value, null, 2));
+      }
+    };
+
+    const handleScroll = (event: Event) => {
+      const target = event.target as HTMLElement;
+      if (target.scrollHeight - target.scrollTop === target.clientHeight) {
+        cargarMasDeclaraciones();
+      }
     };
 
     onMounted(async () => {
       await declaracionesStore.cargarDeclaraciones();
-    });
-
-    watch(declaracionesStore.declaraciones, (newVal) => {
-      console.log('Declaraciones actualizadas:', newVal);
+      paginatedDeclaraciones.value = declaracionesStore.declaraciones.slice(0, 8);
+      lastIndex.value = 8;
+      console.log('Primeras 8 declaraciones cargadas:', JSON.stringify(paginatedDeclaraciones.value, null, 2));
     });
 
     return {
-      declaraciones: declaracionesStore.declaraciones,
+      paginatedDeclaraciones,
       react,
       compartirDeclaracion,
-      cargarMasDeclaraciones
+      cargarMasDeclaraciones,
+      handleScroll
     };
   }
 });
@@ -100,6 +114,9 @@ export default defineComponent({
   flex-direction: column;
   align-items: center;
   color: white;
+  overflow-y: auto;
+  max-height: 80vh;
+  /* Ajusta esto según tus necesidades */
 }
 
 .declaracion-item {

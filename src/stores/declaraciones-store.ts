@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { db } from '../firebase';
-import { doc, setDoc, updateDoc, collection, query, orderBy, limit, startAfter, getDocs, getDoc, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import { doc, updateDoc, collection, getDocs, getDoc, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { useViajeStore } from './viaje-store';
 
 export interface Declaracion {
@@ -22,7 +22,6 @@ export interface Declaracion {
 
 export const useDeclaracionesStore = defineStore('declaraciones', () => {
   const declaraciones = ref<Declaracion[]>([]);
-  const lastVisible = ref<any>(null);
   const viajeStore = useViajeStore();
 
   async function cargarDeclaraciones() {
@@ -52,36 +51,12 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
         }
       });
 
+      // Ordenar todas las declaraciones por la cantidad de veces que han sido compartidas
+      declaraciones.value.sort((a, b) => b.compartidos - a.compartidos);
+
       console.log('Declaraciones cargadas:', JSON.stringify(declaraciones.value, null, 2));
-      lastVisible.value = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
     } catch (error) {
       console.error("Error al cargar declaraciones:", error);
-    }
-  }
-
-  async function cargarMasDeclaraciones() {
-    if (lastVisible.value) {
-      try {
-        const q = query(collection(db, 'declaracionesPublicas'), orderBy('compartidos', 'desc'), startAfter(lastVisible.value), limit(10));
-        const querySnapshot = await getDocs(q);
-        console.log('Documentos en la colección declaracionesPublicas (cargar más):');
-        querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-          const data = doc.data();
-          console.log('Documento:', doc.id, 'Datos:', JSON.stringify(data, null, 2));
-          if (Array.isArray(data.declaraciones)) {
-            data.declaraciones.forEach(declaracion => {
-              declaraciones.value.push(declaracion);
-            });
-          } else {
-            console.log('Declaración individual:', data);
-            declaraciones.value.push({ id: doc.id, ...data } as Declaracion);
-          }
-        });
-        console.log('Más declaraciones cargadas:', JSON.stringify(declaraciones.value, null, 2));
-        lastVisible.value = querySnapshot.docs[querySnapshot.docs.length - 1];
-      } catch (error) {
-        console.error("Error al cargar más declaraciones:", error);
-      }
     }
   }
 
@@ -102,7 +77,6 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
   return {
     declaraciones,
     cargarDeclaraciones,
-    cargarMasDeclaraciones,
     actualizarDeclaracion
   };
 });
