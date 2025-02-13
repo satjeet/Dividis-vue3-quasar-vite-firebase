@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="pilar-sentences-container">
     <ul>
       <li v-for="(sentence, index) in sentences" :key="index" class="q-py-sm">
         <div class="row" style="display: flex; justify-content: space-between; align-items: center;">
@@ -31,7 +31,7 @@ export default defineComponent({
     category: { type: String, required: true },
     pilar: { type: String, required: true }
   },
-  setup (props) {
+  setup(props) {
     const store = useViajeStore()
     const sentences = computed(() => {
       const category = store.categories.find(cat => cat.name === props.category)
@@ -46,12 +46,12 @@ export default defineComponent({
     const editingIndex = ref<number | null>(null)
     const editingSentence = ref('')
 
-    function editSentence (index: number) {
+    function editSentence(index: number) {
       editingIndex.value = index
       editingSentence.value = sentences.value[index]
     }
 
-    function saveEdit () {
+    function saveEdit() {
       if (editingIndex.value !== null) {
         store.editSentence(props.category, props.pilar, editingIndex.value, editingSentence.value)
         editingIndex.value = null
@@ -59,12 +59,12 @@ export default defineComponent({
       }
     }
 
-    function cancelEdit () {
+    function cancelEdit() {
       editingIndex.value = null
       editingSentence.value = ''
     }
 
-    function deleteSentence (index: number) {
+    function deleteSentence(index: number) {
       store.deleteSentence(props.category, props.pilar, index)
     }
 
@@ -81,4 +81,14 @@ export default defineComponent({
 })
 </script>
 
+<style scoped="">
+.pilar-sentences-container {
+  max-height: 100%;
+  overflow-y: auto;
+}
 
+.sentence-item {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+</style>

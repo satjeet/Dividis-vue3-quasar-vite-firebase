@@ -1,7 +1,7 @@
 <template>
   <div class="fullscreen text-white text-center q-pa-md flex flex-center">
-    <div class="column" style="height: 500px; position: relative;">
-      <PilarNavigation :category="category" :pilar="pilar" @update:pilar="updatePilar" />
+    <div class="column content-container">
+      <PilarNavigation :category="category" :pilar="pilar" @update:pilar="updatePilar" class="pilar-navigation" />
       <div class="spacer"></div>
       <div class="header-container">
         <CategoryPilarHeader :category="category" :pilar="pilar" />
@@ -10,7 +10,9 @@
         </q-icon>
       </div>
       <AddSentenceSection :category="category" :pilar="pilar" />
-      <PilarSentencesSection :category="category" :pilar="pilar" />
+      <div class="sentences-container">
+        <PilarSentencesSection :category="category" :pilar="pilar" />
+      </div>
       <SaveToFirebaseSection />
     </div>
   </div>
@@ -78,6 +80,18 @@ export default defineComponent({
 </script>
 
 <style scoped="">
+.content-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/*.pilar-navigation {
+  margin-top: 20px;
+
+}*/
+
 .spacer {
   height: 10px;
   /* Ajustar para bajar la altura del CategoryPilarHeader */
@@ -87,5 +101,11 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.sentences-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 20px;
 }
 </style>
