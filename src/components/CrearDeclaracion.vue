@@ -1,20 +1,20 @@
 <template>
-  <div class="declaracion-container">
+  <div class="declaracion-container" ref="declaracionContainer">
     <div class="declaracion-content">
-      <q-input v-model="declaracion" maxlength="250" hint="Máximo 250 caracteres" counter=""
-        class="declaracion-input" />
-      <div class="selectors-row">
+      <q-input v-model="declaracion" maxlength="250" hint="Máximo 250 caracteres" counter="" class="declaracion-input"
+        @focus="expand" @input="expand" />
+      <div v-if="isExpanded" class="selectors-row">
         <q-select v-model="categoria" :options="categorias" label="Categoría" class="declaracion-select" />
         <q-select v-model="pilar" :options="pilares" label="Pilar" class="declaracion-select" />
       </div>
-      <q-btn label="Declarar" @click="guardarDeclaracion" class="declaracion-btn" :disabled="isButtonDisabled" />
-
+      <q-btn v-if="isExpanded" label="Declarar" @click="guardarDeclaracion" class="declaracion-btn"
+        :disabled="isButtonDisabled" />
     </div>
   </div>
 </template>
 
 <script setup="" lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useDeclaracionesStore } from '../stores/declaraciones-store'
 import { useViajeStore } from '../stores/viaje-store'
 import { auth } from '../firebase'
@@ -22,6 +22,7 @@ import { auth } from '../firebase'
 const declaracion = ref('')
 const categoria = ref('')
 const pilar = ref('')
+const isExpanded = ref(false)
 const categorias = ['Salud', 'Intelecto', 'Personalidad', 'Finanzas', 'Carrera', 'Emociones', 'Calidad de Vida', 'Relaciones', 'Vision General']
 const pilares = ['Vision', 'Proposito', 'Creencias', 'Estrategia']
 
@@ -29,6 +30,16 @@ const storeGlobal = useDeclaracionesStore()
 const storeViaje = useViajeStore()
 
 const isButtonDisabled = computed(() => !categoria.value || !pilar.value)
+
+const expand = () => {
+  isExpanded.value = true
+}
+
+const compress = () => {
+  if (declaracion.value === '') {
+    isExpanded.value = false
+  }
+}
 
 const guardarDeclaracion = () => {
   const userId = auth.currentUser?.uid
@@ -64,7 +75,30 @@ const guardarDeclaracion = () => {
   declaracion.value = ''
   categoria.value = ''
   pilar.value = ''
+  isExpanded.value = false
 }
+
+const declaracionContainer = ref<HTMLElement | null>(null)
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (declaracionContainer.value && !declaracionContainer.value.contains(event.target as Node)) {
+    compress()
+  }
+}
+
+const handleScroll = () => {
+  compress()
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+  window.addEventListener('scroll', handleScroll)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+  window.removeEventListener('scroll', handleScroll)
+})
 
 </script>
 
