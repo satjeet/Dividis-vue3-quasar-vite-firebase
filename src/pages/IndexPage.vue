@@ -6,24 +6,28 @@
           {{ section.text }}
         </div>
         <!-- Flechas solo en secciones antes de la final -->
-        <q-btn v-if="section.next" @click="scrollTo(section.next)" icon="south" color="orange" round dense class="next-button" />
+        <q-btn v-if="section.next" @click="scrollTo(section.next)" icon="south" color="orange" round dense
+          class="next-button" />
         <div v-if="section.id === 3" class="final-content">
-          <q-btn href="https://www.youtube.com/watch?v=VPRjCeoBqrI&list=PLVLTpK34Hy3kr2h9twqWdApiKxpfhn9Rh&index=1&ab_channel=Coldplay" class="exit-button slider-link" icon="logout" label="Regresar a mi zona de confort" />
+          <q-btn
+            href="https://www.youtube.com/watch?v=VPRjCeoBqrI&list=PLVLTpK34Hy3kr2h9twqWdApiKxpfhn9Rh&index=1&ab_channel=Coldplay"
+            class="exit-button slider-link" icon="logout" label="Regresar a mi zona de confort" />
           <div class="led-message q-mt-md">{{ section.text }}</div>
 
           <div class="q-pa-md">
             <q-list bordered separator>
               <!-- Si el usuario NO está autenticado, mostrar el botón para iniciar sesión -->
-              <q-slide-item class="led-message text-with-led slider-link" left-color="black" v-if="!userGoogle" @left="LogingGoogle">
+              <q-slide-item class="led-message text-with-led slider-link" left-color="black" v-if="!userGoogle"
+                @left="LogingGoogle">
                 <template v-slot:left>
                   <q-icon name="sentiment_very_satisfied" />
                   QUE DISFRUTES EL VIAJE
                 </template>
                 <q-item @click="LogingGoogle">
                   <q-item-section avatar>
-                     <q-icon name="start" />
+                    <q-icon name="start" />
                   </q-item-section>
-                  <q-item-section>Desliza pra comenzar</q-item-section>
+                  <q-item-section>Desliza para comenzar</q-item-section>
                 </q-item>
               </q-slide-item>
 
@@ -35,7 +39,7 @@
                 </template>
                 <q-item @click="startJourney">
                   <q-item-section avatar>
-                     <q-icon name="start" />
+                    <q-icon name="start" />
                   </q-item-section>
                   <q-item-section>Comenzar</q-item-section>
                 </q-item>
@@ -56,7 +60,7 @@ import { auth } from 'src/firebase'
 
 export default {
   name: 'IndexPage',
-  setup () {
+  setup() {
     const userGoogle = inject('userGoogle') // Obtenemos el estado del usuario
     const $q = useQuasar() // Asegúrate de que Quasar Notify está habilitado
 
@@ -93,7 +97,7 @@ export default {
       userGoogle,
       LogingGoogle,
       startJourney,
-      scrollTo (sectionId) {
+      scrollTo(sectionId) {
         const sectionElement = this.$el.querySelector(`.section:nth-child(${sectionId})`)
         sectionElement.scrollIntoView({ behavior: 'smooth' })
       }
@@ -161,9 +165,11 @@ export default {
       box-shadow: 0 0 10px orange, 0 0 20px orange, 0 0 30px orange;
     }
 
-    .exit-button, .login-button {
+    .exit-button,
+    .login-button {
       font-size: 10px;
-      text-align: center; /* Centra el texto horizontalmente */
+      text-align: center;
+      /* Centra el texto horizontalmente */
       width: 100%;
       max-width: 200px;
       border-radius: 30px;
@@ -193,6 +199,7 @@ export default {
   .index-page .content .text-with-led {
     font-size: 1.5em; // Tamaño más pequeño para tabletas y móviles
   }
+
   .index-page .final-content .led-message {
     font-size: 1.5em;
   }
@@ -202,6 +209,7 @@ export default {
   .index-page .content .text-with-led {
     font-size: 1.2em; // Tamaño más pequeño para teléfonos móviles
   }
+
   .index-page .final-content .led-message {
     font-size: 1.2em;
   }
@@ -209,7 +217,9 @@ export default {
 
 // Keyframes para animaciones
 @keyframes blink {
-  50% { color: #091d25; }
+  50% {
+    color: #091d25;
+  }
 }
 
 @keyframes neon-orange {
@@ -218,6 +228,7 @@ export default {
     color: #ff9800;
     border-color: #ff9800;
   }
+
   to {
     box-shadow: 0 0 10px #ff9800, 0 0 15px #ff9800, 0 0 20px #ff9800;
     color: orange;
