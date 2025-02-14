@@ -1,12 +1,13 @@
 <template>
   <div class="declaraciones-container" @scroll="handleScroll">
-    <h2>Declaraciones</h2>
     <ul>
-      <li v-for="(declaracion, index) in paginatedDeclaraciones" :key="index" class="declaracion-item">
-        <p><strong>Texto:</strong> {{ declaracion.texto }}</p>
-        <p><strong>Categoría:</strong> {{ declaracion.categoria }}</p>
-        <p><strong>Pilar:</strong> {{ declaracion.pilar }}</p>
-        <div>
+      <li v-for="(declaracion, index) in paginatedDeclaraciones" :key="index" class="declaracion-item bg-primary">
+        <div class="declaracion-header">
+          <span class="declaracion-categoria">{{ declaracion.categoria }}</span>
+          <span class="declaracion-pilar">{{ declaracion.pilar }}</span>
+        </div>
+        <p class="declaracion-texto">{{ declaracion.texto }}</p>
+        <div class="declaracion-interacciones">
           <q-btn flat round dense @click="react(declaracion, 'meEncanta')" icon="favorite">
             <q-badge color="red">{{ declaracion.reacciones?.meEncanta || 0 }}</q-badge>
           </q-btn>
@@ -122,6 +123,45 @@ export default defineComponent({
 .declaracion-item {
   list-style: none;
   margin: 10px 0;
-  text-align: center;
+  padding: 15px;
+  background-color: var(--q-color-secondary);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.declaracion-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.declaracion-categoria,
+.declaracion-pilar {
+  font-size: 12px;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.declaracion-texto {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.declaracion-interacciones {
+  display: flex;
+  justify-content: space-around;
+}
+
+.q-btn {
+  color: #fff;
+}
+
+.q-badge {
+  font-size: 12px;
 }
 </style>
