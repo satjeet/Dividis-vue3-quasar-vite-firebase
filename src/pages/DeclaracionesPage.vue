@@ -1,7 +1,7 @@
 <template>
   <div ref="pageContainer" @scroll="handleScroll">
-    <CrearDeclaracion v-if="showCrearDeclaracion" />
-    <MostrarDeclaraciones />
+    <CrearDeclaracion v-if="showCrearDeclaracion" @nuevaDeclaracion="agregarDeclaracion" />
+    <MostrarDeclaraciones ref="mostrarDeclaracionesRef" />
   </div>
 </template>
 
@@ -9,6 +9,7 @@
 import { defineComponent, ref, onMounted, onBeforeUnmount } from 'vue'
 import CrearDeclaracion from '../components/CrearDeclaracion.vue'
 import MostrarDeclaraciones from '../components/MostrarDeclaraciones.vue'
+import { Declaracion } from '../stores/declaraciones-store'
 
 export default defineComponent({
   name: 'DeclaracionPage',
@@ -20,18 +21,23 @@ export default defineComponent({
     const pageContainer = ref<HTMLElement | null>(null)
     const lastScrollTop = ref(0)
     const showCrearDeclaracion = ref(true)
+    const mostrarDeclaracionesRef = ref<InstanceType<typeof MostrarDeclaraciones> | null>(null)
 
     const handleScroll = () => {
       if (pageContainer.value) {
         const scrollTop = pageContainer.value.scrollTop
         if (scrollTop > lastScrollTop.value) {
-          // Scrolling down
           showCrearDeclaracion.value = false
         } else {
-          // Scrolling up
           showCrearDeclaracion.value = true
         }
         lastScrollTop.value = scrollTop <= 0 ? 0 : scrollTop
+      }
+    }
+
+    const agregarDeclaracion = (declaracion: Declaracion) => {
+      if (mostrarDeclaracionesRef.value) {
+        mostrarDeclaracionesRef.value.agregarNuevaDeclaracion(declaracion)
       }
     }
 
@@ -50,14 +56,15 @@ export default defineComponent({
     return {
       pageContainer,
       showCrearDeclaracion,
-      handleScroll
+      handleScroll,
+      mostrarDeclaracionesRef,
+      agregarDeclaracion
     }
   }
 })
 </script>
 
 <style scoped>
-/* Asegúrate de que el contenedor tenga un tamaño fijo y overflow para que el scroll funcione */
 div[ref="pageContainer"] {
   height: 100vh;
   overflow-y: auto;

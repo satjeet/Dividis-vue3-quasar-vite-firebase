@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { db } from '../firebase';
-import { doc, updateDoc, collection, getDocs, getDoc, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import { doc, updateDoc, collection, getDocs, getDoc, setDoc, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { useViajeStore } from './viaje-store';
 
 export interface Declaracion {
@@ -74,9 +74,28 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
     }
   }
 
+  async function agregarDeclaracion(declaracion: Declaracion) {
+    try {
+      const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        data.declaraciones.push(declaracion);
+        await updateDoc(docRef, { declaraciones: data.declaraciones });
+      } else {
+        await setDoc(docRef, { declaraciones: [declaracion] });
+      }
+      declaraciones.value.unshift(declaracion); // Agregar la nueva declaración al principio de la lista
+      console.log('Declaración agregada:', JSON.stringify(declaracion, null, 2));
+    } catch (error) {
+      console.error("Error al agregar declaración:", error);
+    }
+  }
+
   return {
     declaraciones,
     cargarDeclaraciones,
-    actualizarDeclaracion
+    actualizarDeclaracion,
+    agregarDeclaracion
   };
 });

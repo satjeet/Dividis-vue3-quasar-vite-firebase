@@ -1,23 +1,25 @@
 <template>
   <div class="declaracion-container" ref="declaracionContainer">
     <div class="declaracion-content">
-      <q-input v-model="declaracion" maxlength="250" hint="Máximo 250 caracteres" counter="" class="declaracion-input"
+      <q-input v-model="declaracion" maxlength="250" hint="Máximo 250 caracteres" counter class="declaracion-input"
         @focus="expand" @input="expand" />
       <div v-if="isExpanded" class="selectors-row">
         <q-select v-model="categoria" :options="categorias" label="Categoría" class="declaracion-select" />
         <q-select v-model="pilar" :options="pilares" label="Pilar" class="declaracion-select" />
       </div>
-      <q-btn v-if="isExpanded" label="Declarar" @click="guardarDeclaracion" class="declaracion-btn"
-        :disabled="isButtonDisabled" />
+      <q-btn v-if="isExpanded" label="Declarar" @click="guardarDeclaracion" class="declaracion-btn bg-primary"
+        :disable="isButtonDisabled" />
     </div>
   </div>
 </template>
 
-<script setup="" lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+<script setup lang="ts">
+import { ref, computed, onMounted, onBeforeUnmount, defineEmits } from 'vue'
 import { useDeclaracionesStore } from '../stores/declaraciones-store'
 import { useViajeStore } from '../stores/viaje-store'
 import { auth } from '../firebase'
+
+const emit = defineEmits(['nuevaDeclaracion'])
 
 const declaracion = ref('')
 const categoria = ref('')
@@ -29,7 +31,7 @@ const pilares = ['Vision', 'Proposito', 'Creencias', 'Estrategia']
 const storeGlobal = useDeclaracionesStore()
 const storeViaje = useViajeStore()
 
-const isButtonDisabled = computed(() => !categoria.value || !pilar.value)
+const isButtonDisabled = computed(() => !categoria.value || !pilar.value || !declaracion.value.trim())
 
 const expand = () => {
   isExpanded.value = true
@@ -41,7 +43,7 @@ const compress = () => {
   }
 }
 
-const guardarDeclaracion = () => {
+const guardarDeclaracion = async () => {
   const userId = auth.currentUser?.uid
   if (!userId) {
     console.error('Usuario no autenticado')
@@ -65,17 +67,24 @@ const guardarDeclaracion = () => {
     usuariosCompartieron: []
   }
 
-  // Guardar en store global de declaraciones
-  storeGlobal.agregarDeclaracion(declData)
+  try {
+    // Guardar en store global de declaraciones
+    await storeGlobal.agregarDeclaracion(declData)
 
-  // Guardar en viajeStore
-  storeViaje.addSentence(categoria.value, pilar.value, declaracion.value)
+    // Emitir evento con la nueva declaración
+    emit('nuevaDeclaracion', declData)
 
-  // Limpiar campos
-  declaracion.value = ''
-  categoria.value = ''
-  pilar.value = ''
-  isExpanded.value = false
+    // Guardar en viajeStore
+    await storeViaje.addSentence(categoria.value, pilar.value, declaracion.value)
+
+    // Limpiar campos
+    declaracion.value = ''
+    categoria.value = ''
+    pilar.value = ''
+    isExpanded.value = false
+  } catch (error) {
+    console.error('Error al guardar la declaración:', error)
+  }
 }
 
 const declaracionContainer = ref<HTMLElement | null>(null)
@@ -99,15 +108,9 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
   window.removeEventListener('scroll', handleScroll)
 })
-
 </script>
 
-<style lang="scss" scoped="">
-.declaracion-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
+<style lang="scss" scoped>
 .declaracion-container {
   background-color: #f5f5f5;
   padding: 20px;
@@ -115,12 +118,6 @@ onBeforeUnmount(() => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 600px;
   margin: 40px auto;
-}
-
-.declaracion-title {
-  color: #333;
-  text-align: center;
-  margin-bottom: 20px;
 }
 
 .declaracion-content {
@@ -139,14 +136,7 @@ onBeforeUnmount(() => {
   color: #333;
 }
 
-.declaracion-counter {
-  color: #666;
-  font-size: 14px;
-  text-align: right;
-}
-
 .declaracion-btn {
-  background-color: #4CAF50;
   color: #fff;
   padding: 10px 20px;
   border-radius: 5px;
@@ -154,7 +144,12 @@ onBeforeUnmount(() => {
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #45a049;
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
   }
 }
 

@@ -80,7 +80,6 @@ export default defineComponent({
         const nuevasDeclaraciones = declaracionesStore.declaraciones.slice(lastIndex.value, lastIndex.value + 8);
         paginatedDeclaraciones.value.push(...nuevasDeclaraciones);
         lastIndex.value += 8;
-        console.log('Más declaraciones cargadas:', JSON.stringify(paginatedDeclaraciones.value, null, 2));
       }
     };
 
@@ -91,11 +90,17 @@ export default defineComponent({
       }
     };
 
+    const agregarNuevaDeclaracion = (declaracion: Declaracion) => {
+      paginatedDeclaraciones.value.unshift(declaracion);
+      if (paginatedDeclaraciones.value.length > lastIndex.value) {
+        paginatedDeclaraciones.value.pop();
+      }
+    };
+
     onMounted(async () => {
       await declaracionesStore.cargarDeclaraciones();
       paginatedDeclaraciones.value = declaracionesStore.declaraciones.slice(0, 8);
       lastIndex.value = 8;
-      console.log('Primeras 8 declaraciones cargadas:', JSON.stringify(paginatedDeclaraciones.value, null, 2));
     });
 
     return {
@@ -103,7 +108,8 @@ export default defineComponent({
       react,
       compartirDeclaracion,
       cargarMasDeclaraciones,
-      handleScroll
+      handleScroll,
+      agregarNuevaDeclaracion
     };
   }
 });
@@ -117,14 +123,13 @@ export default defineComponent({
   color: white;
   overflow-y: auto;
   max-height: 80vh;
-  /* Ajusta esto según tus necesidades */
 }
 
 .declaracion-item {
   list-style: none;
   margin: 10px 0;
   padding: 15px;
-  background-color: var(--q-color-secondary);
+  background-color: var(--q-color-primary);
   border-radius: 10px;
   width: 100%;
   max-width: 600px;
