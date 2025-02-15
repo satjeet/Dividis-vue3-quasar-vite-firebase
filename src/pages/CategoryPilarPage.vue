@@ -1,17 +1,18 @@
 <template>
   <div class="fullscreen text-white text-center q-pa-md flex flex-center">
     <div class="column content-container">
-      <PilarNavigation :category="category" :pilar="pilar" @update:pilar="updatePilar" class="pilar-navigation" />
+      <PilarNavigation :category="category" :pilar="currentPilar" @update:pilar="updatePilar"
+        class="pilar-navigation" />
       <div class="spacer"></div>
       <div class="header-container">
-        <CategoryPilarHeader :category="category" :pilar="pilar" />
+        <CategoryPilarHeader :category="category" :pilar="currentPilar" />
         <q-icon name="help_outline" class="q-ml-sm">
           <q-tooltip class="bg-primary">{{ pilarExplanation }}</q-tooltip>
         </q-icon>
       </div>
-      <AddSentenceSection :category="category" :pilar="pilar" />
+      <AddSentenceSection :category="category" :pilar="currentPilar" />
       <div class="sentences-container">
-        <PilarSentencesSection :category="category" :pilar="pilar" />
+        <PilarSentencesSection :category="category" :pilar="currentPilar" />
       </div>
       <SaveToFirebaseSection />
     </div>
@@ -49,14 +50,14 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const pilar = ref(props.pilar)
+    const currentPilar = ref(props.pilar)
 
     watch(() => props.pilar, (newPilar) => {
-      pilar.value = newPilar
+      currentPilar.value = newPilar
     })
 
     function updatePilar(newPilar: string) {
-      pilar.value = newPilar
+      currentPilar.value = newPilar
     }
 
     const pilarExplanation = computed(() => {
@@ -66,14 +67,14 @@ export default defineComponent({
         Creencias: 'Tu creencias se refiere a las creencias fundamentales que tienes sobre esta categoría. ¿En qué crees? ¿Qué creencias profundas están moldeando tu vida? ¿Tus creencias son empoderadoras? ¿Te mueven a un nivel profundo o te están frenando? ¿Cuál es tu Premisa para esta área de tu vida, o cómo te gustaría que fuera?',
         Estrategias: 'Tu Estrategia se refiere a las acciones específicas que te llevarán de donde estás ahora a donde quieres estar. ¿Cómo harás realidad tu visión? Pregúntate qué tipo de hábitos positivos, actitudes y pasos de acción puedes implementar. ¿Cuál es la RECETA para la Visión que quieres crear?',
       }
-      return explanations[pilar.value as keyof typeof explanations] || 'Explicación no disponible.'
+      return explanations[props.pilar] || 'Explicación no disponible.'
     })
 
     return {
-      category: props.category,
-      pilar,
+      currentPilar,
       updatePilar,
-      pilarExplanation
+      pilarExplanation,
+      category: props.category
     }
   }
 })
@@ -87,10 +88,9 @@ export default defineComponent({
   overflow-y: auto;
 }
 
-/*.pilar-navigation {
+.pilar-navigation {
   margin-top: 20px;
-
-}*/
+}
 
 .spacer {
   height: 10px;

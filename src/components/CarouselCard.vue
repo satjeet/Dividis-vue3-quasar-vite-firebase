@@ -28,7 +28,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
 import { useUserStore } from '../stores/user-store';
 import { useViajeStore } from '../stores/viaje-store';
 
