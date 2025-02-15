@@ -1,92 +1,84 @@
 <template>
   <div class="navigation-container">
-    <q-btn flat="" round="" dense="" @click="prevPilar" :disable="!hasPrevPilar || isPilarLocked(prevPilarName)"
-      class="left-btn" color="white">
-      <q-icon :name="isPilarLocked(prevPilarName) ? 'lock' : 'arrow_back'" />
+    <q-btn flat round dense @click="prevPilar" :disable="!hasPrevPilar || isPilarLocked(prevPilarName)" class="left-btn"
+      color="white">
+      <template v-if="isPilarLocked(prevPilarName)">
+        <q-icon name="lock" />
+      </template>
       <span>{{ prevPilarName }}</span>
+      <q-icon name="arrow_back" />
     </q-btn>
-    <q-btn flat="" round="" dense="" @click="nextPilar" :disable="!hasNextPilar || isPilarLocked(nextPilarName)"
+    <q-btn flat round dense @click="nextPilar" :disable="!hasNextPilar || isPilarLocked(nextPilarName)"
       class="right-btn" color="white">
+      <q-icon name="arrow_forward" />
       <span>{{ nextPilarName }}</span>
-      <q-icon :name="isPilarLocked(nextPilarName) ? 'lock' : 'arrow_forward'" />
+      <template v-if="isPilarLocked(nextPilarName)">
+        <q-icon name="lock" />
+      </template>
     </q-btn>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, computed } from 'vue'
-import { useViajeStore } from '../stores/viaje-store'
-import { useUserStore } from '../stores/user-store'
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useViajeStore } from '../stores/viaje-store';
+import { useUserStore } from '../stores/user-store';
 
-export default defineComponent({
-  props: {
-    category: { type: String, required: true },
-    pilar: { type: String, required: true }
-  },
-  setup(props, { emit }) {
-    const viajeStore = useViajeStore()
-    const userStore = useUserStore()
-    const pilars = viajeStore.pilars
-    const pilarIndex = computed(() => pilars.findIndex(pilar => pilar === props.pilar))
+const props = defineProps<{
+  category: string;
+  pilar: string;
+}>();
 
-    const hasPrevPilar = computed(() => pilarIndex.value >= 0)
-    const hasNextPilar = computed(() => pilarIndex.value >= 0)
+const emit = defineEmits(['update:pilar']);
 
-    const prevPilarName = computed(() => {
-      if (pilarIndex.value > 0) {
-        return pilars[pilarIndex.value - 1]
-      } else {
-        return pilars[pilars.length - 1]
-      }
-    })
+const viajeStore = useViajeStore();
+const userStore = useUserStore();
+const pilars = viajeStore.pilars;
 
-    const nextPilarName = computed(() => {
-      if (pilarIndex.value < pilars.length - 1) {
-        return pilars[pilarIndex.value + 1]
-      } else {
-        return pilars[0]
-      }
-    })
+const pilarIndex = computed(() => pilars.findIndex(pilar => pilar === props.pilar));
 
-    function prevPilar() {
-      if (pilarIndex.value > 0) {
-        emit('update:pilar', pilars[pilarIndex.value - 1])
-      } else {
-        emit('update:pilar', pilars[pilars.length - 1])
-      }
-    }
+const hasPrevPilar = computed(() => pilarIndex.value >= 0);
+const hasNextPilar = computed(() => pilarIndex.value >= 0);
 
-    function nextPilar() {
-      if (pilarIndex.value < pilars.length - 1) {
-        emit('update:pilar', pilars[pilarIndex.value + 1])
-      } else {
-        emit('update:pilar', pilars[0])
-      }
-    }
-
-    function isPilarLocked(pilarName: string) {
-      return !userStore.isPilarUnlocked(props.category, pilarName)
-    }
-
-    return {
-      hasPrevPilar,
-      hasNextPilar,
-      prevPilarName,
-      nextPilarName,
-      prevPilar,
-      nextPilar,
-      isPilarLocked
-    }
+const prevPilarName = computed(() => {
+  if (pilarIndex.value > 0) {
+    return pilars[pilarIndex.value - 1];
   }
-})
+  return pilars[pilars.length - 1];
+});
+
+const nextPilarName = computed(() => {
+  if (pilarIndex.value < pilars.length - 1) {
+    return pilars[pilarIndex.value + 1];
+  }
+  return pilars[0];
+});
+
+const prevPilar = () => {
+  if (pilarIndex.value > 0) {
+    emit('update:pilar', pilars[pilarIndex.value - 1]);
+  } else {
+    emit('update:pilar', pilars[pilars.length - 1]);
+  }
+};
+
+const nextPilar = () => {
+  if (pilarIndex.value < pilars.length - 1) {
+    emit('update:pilar', pilars[pilarIndex.value + 1]);
+  } else {
+    emit('update:pilar', pilars[0]);
+  }
+};
+
+const isPilarLocked = (pilarName: string): boolean => {
+  return !userStore.isPilarUnlocked(props.category, pilarName);
+};
 </script>
 
-<style scoped="">
+<style scoped>
 .navigation-container {
   position: relative;
-  /* Cambiado de absolute a relative */
   top: 0px;
-  /* Ajustar según sea necesario */
   width: 100%;
   z-index: 10;
   display: flex;
@@ -100,12 +92,10 @@ export default defineComponent({
   display: flex;
   align-items: center;
   margin: 0 10px;
-  /* Añadir margen para separación */
 }
 
 .left-btn span,
 .right-btn span {
   margin: 0 5px;
-  /* Añadir margen para separación entre icono y texto */
 }
 </style>

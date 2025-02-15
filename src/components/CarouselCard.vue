@@ -8,19 +8,16 @@
 
       <q-separator />
 
-      <q-card-actions vertical="" class="my-card  text-white">
+      <q-card-actions vertical class="my-card text-white">
         <div v-for="(pilar, index) in pilars" :key="index">
-          <router-link
-            v-if="isPilarUnlocked(title, pilar)"
+          <router-link v-if="isPilarUnlocked(title, pilar)"
             :to="{ name: 'CategoryPilarPage', params: { category: title, pilar: pilar } }"
-            @click="navigateToCategoryPilarPage(pilar)"
-          >
-            <q-btn unelevated="" rounded="" color="primary">
-              <q-icon name="lock_open" />
+            @click="navigateToCategoryPilarPage(pilar)">
+            <q-btn flat rounded color="primary">
               <div>{{ pilar }}</div>
             </q-btn>
           </router-link>
-          <q-btn v-else="" unelevated="" rounded="" color="grey" disabled="">
+          <q-btn v-else flat rounded color="grey" disable>
             <q-icon name="lock" />
             <div>{{ pilar }}</div>
           </q-btn>
@@ -30,58 +27,41 @@
   </q-carousel-slide>
 </template>
 
-<script lang="ts">
-  import { defineComponent } from 'vue'
-  import { useUserStore } from '../stores/user-store'
-  import { useViajeStore } from '../stores/viaje-store'
+<script setup lang="ts">
+import { defineProps, defineEmits } from 'vue';
+import { useUserStore } from '../stores/user-store';
+import { useViajeStore } from '../stores/viaje-store';
 
-  export default defineComponent({
-  name: 'CarouselCard',
-  props: {
-  name: {
-  type: String,
-  required: true
-  },
-  title: {
-  type: String,
-  required: true
-  },
-  icon: {
-  type: String,
-  required: true
-  }
-  },
-  data () {
-  return {
-  pilars: ['Vision', 'Proposito', 'Creencias', 'Estrategias']
-  }
-  },
-  methods: {
-  navigateToCategoryPilarPage (pilar) {
-  console.log(`Navigating to CategoryPilarPage for category ${this.title} and pilar ${pilar}`)
-  // Obtener la instancia del store
-  const viajeStore = useViajeStore()
+const props = defineProps<{
+  name: string;
+  title: string;
+  icon: string;
+}>();
 
-  // Actualizar la categoría y el pilar en el store
-  viajeStore.setCategoriaSeleccionada(this.title)
-  viajeStore.setPilarSeleccionado(pilar)
-  },
-  isPilarUnlocked (category, pilar) {
-  const userStore = useUserStore()
-  return userStore.isPilarUnlocked(category, pilar)
-  }
-  }
-  })
+const pilars = ['Vision', 'Proposito', 'Creencias', 'Estrategias'] as const;
+type Pilar = typeof pilars[number];
+
+const navigateToCategoryPilarPage = (pilar: Pilar) => {
+  console.log(`Navigating to CategoryPilarPage for category ${props.title} and pilar ${pilar}`);
+  const viajeStore = useViajeStore();
+  viajeStore.setCategoriaSeleccionada(props.title);
+  viajeStore.setPilarSeleccionado(pilar);
+};
+
+const isPilarUnlocked = (category: string, pilar: Pilar): boolean => {
+  const userStore = useUserStore();
+  return userStore.isPilarUnlocked(category, pilar);
+};
 </script>
 
-<style scoped="">
-  .my-card {
+<style scoped>
+.my-card {
   width: 100%;
   max-width: 300px;
-  min-width: 300px; /* Establecer un ancho mínimo de 300px */
-  height: 400px; /* Establecer una altura fija para los cuadros de las categorías */
+  min-width: 300px;
+  height: 400px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  }
+}
 </style>
