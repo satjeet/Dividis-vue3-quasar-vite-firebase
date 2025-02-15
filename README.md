@@ -142,7 +142,7 @@ npm run dev
 
 ¿Preguntas o sugerencias? Estamos aquí para ayudar:
 
-- 📧 [Email](mailto:amordegamers@gmail.com)
+- 📧 [Email](mailto:amordegamers24@gmail.com)
 - 🐦 [Twitter]
 - 💬 [Discord](https://discord.gg/gVJBMqn6)
 
