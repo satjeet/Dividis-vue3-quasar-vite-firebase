@@ -14,153 +14,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, defineEmits } from 'vue'
-import { useDeclaracionesStore } from '../stores/declaraciones-store'
-import { useViajeStore } from '../stores/viaje-store'
-import { auth } from '../firebase'
+import { ref } from 'vue';
+import { useDeclaracionForm } from '../composables/useDeclaracionForm';
+import { useClickOutside } from '../composables/useClickOutside';
 
-const declaracion = ref('')
-const categoria = ref('')
-const pilar = ref('')
-const isExpanded = ref(false)
-const categorias = ['Salud', 'Intelecto', 'Personalidad', 'Finanzas', 'Carrera', 'Emociones', 'Calidad de Vida', 'Relaciones', 'Vision General']
-const pilares = ['Vision', 'Proposito', 'Creencias', 'Estrategia']
+const declaracionContainer = ref<HTMLElement | null>(null);
+const {
+  declaracion,
+  categoria,
+  pilar,
+  isExpanded,
+  isButtonDisabled,
+  categorias,
+  pilares,
+  expand,
+  compress,
+  guardarDeclaracion
+} = useDeclaracionForm();
 
-const storeGlobal = useDeclaracionesStore()
-const storeViaje = useViajeStore()
-
-const isButtonDisabled = computed(() => !categoria.value || !pilar.value || !declaracion.value.trim())
-
-const expand = () => {
-  isExpanded.value = true
-}
-
-const compress = () => {
-  if (declaracion.value === '') {
-    isExpanded.value = false
-  }
-}
-
-const guardarDeclaracion = async () => {
-  const userId = auth.currentUser?.uid
-  if (!userId) {
-    console.error('Usuario no autenticado')
-    return
-  }
-
-  const declData = {
-    id: `${categoria.value}-${pilar.value}-${Date.now()}`,
-    texto: declaracion.value,
-    categoria: categoria.value,
-    pilar: pilar.value,
-    esPublica: true,
-    creadorId: userId,
-    compartidos: 0,
-    reacciones: {
-      meEncanta: 0,
-      estaOk: 0,
-      mejorCambiala: 0
-    },
-    usuariosReaccionaron: [],
-    usuariosCompartieron: [],
-    usuariosReaccionTipo: {}
-  }
-
-  try {
-    // Guardar primero en el store global
-    storeGlobal.agregarDeclaracion(declData);
-
-    // Luego guardar en viaje
-    await storeViaje.addSentence(categoria.value, pilar.value, declaracion.value);
-
-    // Limpiar campos
-    declaracion.value = ''
-    categoria.value = ''
-    pilar.value = ''
-    isExpanded.value = false
-  } catch (error) {
-    console.error('Error al guardar la declaración:', error)
-  }
-}
-
-const declaracionContainer = ref<HTMLElement | null>(null)
-
-const handleClickOutside = (event: MouseEvent) => {
-  if (declaracionContainer.value && !declaracionContainer.value.contains(event.target as Node)) {
-    compress()
-  }
-}
-
-const handleScroll = () => {
-  compress()
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-  window.addEventListener('scroll', handleScroll)
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', handleClickOutside)
-  window.removeEventListener('scroll', handleScroll)
-})
+// Initialize click outside handler
+useClickOutside(declaracionContainer, compress);
 </script>
 
-<style lang="scss" scoped>
-.declaracion-container {
-  background-color: #f5f5f5;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 600px;
-  margin: 40px auto;
-}
-
-.declaracion-content {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.declaracion-input,
-.declaracion-select {
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  padding: 10px;
-  font-size: 16px;
-  color: #333;
-}
-
-.declaracion-btn {
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-}
-
-.selectors-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.declaracion-select {
-  flex: 1;
-  margin-right: 5px;
-
-  &:last-child {
-    margin-right: 0;
-  }
-}
+<style lang="scss">
+@import '../assets/styles/CrearDeclaracion.scss';
 </style>
