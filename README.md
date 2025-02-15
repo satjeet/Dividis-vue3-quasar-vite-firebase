@@ -25,10 +25,10 @@ Dividis es una innovadora plataforma de crecimiento personal que te ayuda a tran
 ### Sistema de Declaraciones
 
 - **Creación Personalizada**: Comparte tus intenciones y metas vitales
-- **Organización Intuitiva**: 8 áreas fundamentales de la vida:
-  - 🧠 Intelecto: Desarrollo mental y aprendizaje
+- **Organización Intuitiva**: 8 áreas fundamentales de la vida por donde fluye la energia:
   - ❤️ Salud: Bienestar físico y vitalidad
   - 😊 Personalidad: Crecimiento personal
+  - 🧠 Intelecto: Desarrollo mental y aprendizaje
   - 💼 Carrera: Desarrollo profesional
   - 💰 Finanzas: Libertad financiera
   - 🌟 Calidad de Vida: Experiencias significativas
@@ -145,6 +145,7 @@ npm run dev
 - 📧 [Email](mailto:amordegamers24@gmail.com)
 - 🐦 [Twitter]
 - 💬 [Discord](https://discord.gg/gVJBMqn6)
+- web de testeo : https://dividis-75984.web.app
 
 ## 📝 Licencia
 
