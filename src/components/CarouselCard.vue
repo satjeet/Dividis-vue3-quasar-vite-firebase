@@ -58,7 +58,7 @@ const isPilarUnlocked = (category: string, pilar: Pilar): boolean => {
   width: 100%;
   max-width: 300px;
   min-width: 300px;
-  height: 401px;
+  height: 400px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
