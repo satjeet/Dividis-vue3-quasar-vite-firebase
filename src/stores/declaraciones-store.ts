@@ -65,33 +65,52 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
 
   async function actualizarDeclaracion(declaracion: Declaracion) {
     try {
+      // Update local store first for immediate reactivity
+      declaraciones.value = declaraciones.value.map(decl =>
+        decl.id === declaracion.id ? { ...declaracion } : decl
+      );
+
+      // Then update Firebase
       const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        const declaraciones = docSnap.data().declaraciones.map((decl: Declaracion) => decl.id === declaracion.id ? declaracion : decl);
-        await updateDoc(docRef, { declaraciones });
+        const declaracionesFirebase = docSnap.data().declaraciones.map((decl: Declaracion) =>
+          decl.id === declaracion.id ? { ...declaracion } : decl
+        );
+        await updateDoc(docRef, { declaraciones: declaracionesFirebase });
         console.log('Declaración actualizada:', JSON.stringify(declaracion, null, 2));
       }
     } catch (error) {
       console.error("Error al actualizar declaración:", error);
+      // Rollback on error
+      await cargarDeclaraciones();
     }
   }
 
   async function agregarDeclaracion(declaracion: Declaracion) {
     try {
+      // Actualizar el estado local primero
+      declaraciones.value = [declaracion, ...declaraciones.value];
+
+      // Luego guardar en Firebase
       const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`);
       const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
         const data = docSnap.data();
-        data.declaraciones.push(declaracion);
-        await updateDoc(docRef, { declaraciones: data.declaraciones });
+        await updateDoc(docRef, {
+          declaraciones: [declaracion, ...data.declaraciones]
+        });
       } else {
         await setDoc(docRef, { declaraciones: [declaracion] });
       }
-      declaraciones.value.unshift(declaracion); // Agregar la nueva declaración al principio de la lista
+
       console.log('Declaración agregada:', JSON.stringify(declaracion, null, 2));
     } catch (error) {
+      // Si hay error, revertir el cambio local
+      declaraciones.value = declaraciones.value.filter(d => d.id !== declaracion.id);
       console.error("Error al agregar declaración:", error);
+      throw error; // Propagar el error para manejarlo en el componente
     }
   }
 

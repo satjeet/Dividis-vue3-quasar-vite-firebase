@@ -1,33 +1,30 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useDeclaracionesStore, Declaracion } from '../stores/declaraciones-store';
 
 export function useDeclaracionesPagination() {
   const declaracionesStore = useDeclaracionesStore();
-  const paginatedDeclaraciones = ref<Declaracion[]>([]);
-  const lastIndex = ref<number>(0);
+  const lastIndex = ref<number>(8);
   const PAGE_SIZE = 8;
+
+  const paginatedDeclaraciones = computed(() => {
+    return declaracionesStore.declaraciones.slice(0, lastIndex.value);
+  });
 
   const cargarMasDeclaraciones = () => {
     if (declaracionesStore.declaraciones.length > lastIndex.value) {
-      const nuevasDeclaraciones = declaracionesStore.declaraciones.slice(
-        lastIndex.value,
-        lastIndex.value + PAGE_SIZE
-      );
-      paginatedDeclaraciones.value.push(...nuevasDeclaraciones);
       lastIndex.value += PAGE_SIZE;
     }
   };
 
   const agregarNuevaDeclaracion = (declaracion: Declaracion) => {
-    paginatedDeclaraciones.value.unshift(declaracion);
-    if (paginatedDeclaraciones.value.length > lastIndex.value) {
-      paginatedDeclaraciones.value.pop();
+    declaracionesStore.declaraciones.unshift(declaracion);
+    if (lastIndex.value < PAGE_SIZE) {
+      lastIndex.value = PAGE_SIZE;
     }
   };
 
   const inicializarDeclaraciones = async () => {
     await declaracionesStore.cargarDeclaraciones();
-    paginatedDeclaraciones.value = declaracionesStore.declaraciones.slice(0, PAGE_SIZE);
     lastIndex.value = PAGE_SIZE;
   };
 

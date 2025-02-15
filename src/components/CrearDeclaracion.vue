@@ -19,8 +19,6 @@ import { useDeclaracionesStore } from '../stores/declaraciones-store'
 import { useViajeStore } from '../stores/viaje-store'
 import { auth } from '../firebase'
 
-const emit = defineEmits(['nuevaDeclaracion'])
-
 const declaracion = ref('')
 const categoria = ref('')
 const pilar = ref('')
@@ -69,14 +67,11 @@ const guardarDeclaracion = async () => {
   }
 
   try {
-    // Guardar en store global de declaraciones
-    await storeGlobal.agregarDeclaracion(declData)
+    // Guardar primero en el store global
+    storeGlobal.agregarDeclaracion(declData);
 
-    // Emitir evento con la nueva declaración
-    emit('nuevaDeclaracion', declData)
-
-    // Guardar en viajeStore
-    await storeViaje.addSentence(categoria.value, pilar.value, declaracion.value)
+    // Luego guardar en viaje
+    await storeViaje.addSentence(categoria.value, pilar.value, declaracion.value);
 
     // Limpiar campos
     declaracion.value = ''

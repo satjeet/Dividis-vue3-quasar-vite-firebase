@@ -39,22 +39,42 @@ export function useDeclaracionesReactions(usuarioId: string) {
   };
 
   const compartirDeclaracion = async (declaracion: Declaracion) => {
-    const [categoria, pilar, id] = declaracion.id.split('-');
-    const docRef = doc(db, 'declaracionesPublicas', `${categoria}-${pilar}`);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const declaraciones = docSnap.data().declaraciones.map((decl: Declaracion) => {
-        if (decl.id === id) {
-          if (!decl.usuariosCompartieron.includes(usuarioId)) {
-            decl.compartidos += 1;
-            declaracion.usuariosCompartieron.push(usuarioId);
-            viajeStore.addSentence(decl.categoria, decl.pilar, decl.texto);
-            viajeStore.guardarCambiosFirebase();
-          }
-        }
-        return decl;
-      });
-      await updateDoc(docRef, { declaraciones });
+    // No permitir compartir si el usuario es el dueño
+    if (declaracion.creadorId === usuarioId) {
+      console.log('No puedes compartir tu propia declaración');
+      return;
+    }
+
+    // No permitir compartir si ya la compartió antes
+    if (declaracion.usuariosCompartieron?.includes(usuarioId)) {
+      console.log('Ya has compartido esta declaración');
+      return;
+    }
+
+    try {
+      // First update the local object
+      declaracion.compartidos = (declaracion.compartidos || 0) + 1;
+      if (!declaracion.usuariosCompartieron) {
+        declaracion.usuariosCompartieron = [];
+      }
+      declaracion.usuariosCompartieron.push(usuarioId);
+
+      // Update in Firebase
+      await updateDeclaracionInFirebase(declaracion);
+
+      // Add to user's personal journey
+      await viajeStore.addSentence(
+        declaracion.categoria,
+        declaracion.pilar,
+        declaracion.texto
+      );
+      await viajeStore.guardarCambiosFirebase();
+
+    } catch (error) {
+      console.error('Error al compartir declaración:', error);
+      // Rollback changes if something failed
+      declaracion.compartidos--;
+      declaracion.usuariosCompartieron = declaracion.usuariosCompartieron.filter(id => id !== usuarioId);
     }
   };
 
