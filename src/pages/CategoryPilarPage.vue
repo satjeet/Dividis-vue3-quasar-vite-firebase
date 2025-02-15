@@ -1,81 +1,61 @@
 <template>
   <div class="fullscreen text-white text-center q-pa-md flex flex-center">
     <div class="column content-container">
-      <PilarNavigation :category="category" :pilar="currentPilar" @update:pilar="updatePilar"
+      <PilarNavigation :category="props.category" :pilar="currentPilar" @update:pilar="updatePilar"
         class="pilar-navigation" />
       <div class="spacer"></div>
       <div class="header-container">
-        <CategoryPilarHeader :category="category" :pilar="currentPilar" />
+        <CategoryPilarHeader :category="props.category" :pilar="currentPilar" />
         <q-icon name="help_outline" class="q-ml-sm">
           <q-tooltip class="bg-primary">{{ pilarExplanation }}</q-tooltip>
         </q-icon>
       </div>
-      <AddSentenceSection :category="category" :pilar="currentPilar" />
+      <AddSentenceSection :category="props.category" :pilar="currentPilar" />
       <div class="sentences-container">
-        <PilarSentencesSection :category="category" :pilar="currentPilar" />
+        <PilarSentencesSection :category="props.category" :pilar="currentPilar" />
       </div>
       <SaveToFirebaseSection />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, watch, computed } from 'vue'
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
 import CategoryPilarHeader from '../components/CategoryPilarHeader.vue'
 import AddSentenceSection from '../components/AddSentenceSection.vue'
 import PilarSentencesSection from '../components/PilarSentencesSection.vue'
 import SaveToFirebaseSection from '../components/SaveToFirebaseSection.vue'
 import PilarNavigation from '../components/PilarNavigation.vue'
-import { QIcon, QTooltip } from 'quasar'
-import { PILAR_EXPLANATIONS, PilarType } from '../constants/pilarExplanations'
+import { PILAR_EXPLANATIONS } from '../constants/pilarExplanations'
 
-export default defineComponent({
-  name: 'CategoryPilarPage',
-  components: {
-    CategoryPilarHeader,
-    AddSentenceSection,
-    PilarSentencesSection,
-    SaveToFirebaseSection,
-    PilarNavigation,
-    QIcon,
-    QTooltip
-  },
-  props: {
-    category: {
-      type: String,
-      required: true
-    },
-    pilar: {
-      type: String,
-      required: true
-    }
-  },
-  setup(props) {
-    const currentPilar = ref(props.pilar)
+const props = withDefaults(defineProps<{
+  category: string
+  pilar: string
+}>(), {
+  category: '',
+  pilar: ''
+})
 
-    watch(() => props.pilar, (newPilar) => {
-      currentPilar.value = newPilar
-    })
+const isValidPilar = (pilar: string): pilar is keyof typeof PILAR_EXPLANATIONS => {
+  return pilar in PILAR_EXPLANATIONS
+}
 
-    function updatePilar(newPilar: string) {
-      currentPilar.value = newPilar
-    }
+const currentPilar = ref(props.pilar)
 
-    const pilarExplanation = computed(() => {
-      return PILAR_EXPLANATIONS[props.pilar as PilarType] || 'Explicación no disponible.'
-    })
+watch(() => props.pilar, (newPilar) => {
+  currentPilar.value = newPilar
+})
 
-    return {
-      currentPilar,
-      updatePilar,
-      pilarExplanation,
-      category: props.category
-    }
-  }
+function updatePilar(newPilar: string) {
+  currentPilar.value = newPilar
+}
+
+const pilarExplanation = computed(() => {
+  return isValidPilar(props.pilar) ? PILAR_EXPLANATIONS[props.pilar] : 'Explicación no disponible.'
 })
 </script>
 
-<style scoped="">
+<style scoped>
 .content-container {
   height: 100%;
   display: flex;
@@ -89,7 +69,6 @@ export default defineComponent({
 
 .spacer {
   height: 10px;
-  /* Ajustar para bajar la altura del CategoryPilarHeader */
 }
 
 .header-container {
