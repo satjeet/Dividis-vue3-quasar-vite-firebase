@@ -64,7 +64,8 @@ const guardarDeclaracion = async () => {
       mejorCambiala: 0
     },
     usuariosReaccionaron: [],
-    usuariosCompartieron: []
+    usuariosCompartieron: [],
+    usuariosReaccionTipo: {}
   }
 
   try {

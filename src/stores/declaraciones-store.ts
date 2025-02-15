@@ -18,6 +18,9 @@ export interface Declaracion {
   };
   usuariosReaccionaron: string[];
   usuariosCompartieron: string[];
+  usuariosReaccionTipo: {
+    [userId: string]: 'meEncanta' | 'estaOk' | 'mejorCambiala';
+  };
 }
 
 export const useDeclaracionesStore = defineStore('declaraciones', () => {

@@ -8,13 +8,16 @@
         </div>
         <p class="declaracion-texto">{{ declaracion.texto }}</p>
         <div class="declaracion-interacciones">
-          <q-btn flat round dense @click="react(declaracion, 'meEncanta')" icon="favorite">
+          <q-btn flat round dense @click="react(declaracion, 'meEncanta')" icon="favorite"
+            :color="declaracion.usuariosReaccionTipo?.[usuarioId] === 'meEncanta' ? 'red' : 'grey'">
             <q-badge color="red">{{ declaracion.reacciones?.meEncanta || 0 }}</q-badge>
           </q-btn>
-          <q-btn flat round dense @click="react(declaracion, 'estaOk')" icon="thumb_up">
+          <q-btn flat round dense @click="react(declaracion, 'estaOk')" icon="thumb_up"
+            :color="declaracion.usuariosReaccionTipo?.[usuarioId] === 'estaOk' ? 'blue' : 'grey'">
             <q-badge color="blue">{{ declaracion.reacciones?.estaOk || 0 }}</q-badge>
           </q-btn>
-          <q-btn flat round dense @click="react(declaracion, 'mejorCambiala')" icon="thumb_down">
+          <q-btn flat round dense @click="react(declaracion, 'mejorCambiala')" icon="thumb_down"
+            :color="declaracion.usuariosReaccionTipo?.[usuarioId] === 'mejorCambiala' ? 'orange' : 'grey'">
             <q-badge color="orange">{{ declaracion.reacciones?.mejorCambiala || 0 }}</q-badge>
           </q-btn>
           <q-btn flat round dense @click="compartirDeclaracion(declaracion)" icon="share">
@@ -45,13 +48,33 @@ export default defineComponent({
     const lastIndex = ref<number>(0);
 
     const react = async (declaracion: Declaracion, reaccion: keyof Declaracion['reacciones']) => {
-      if (!declaracion.usuariosReaccionaron.includes(usuarioId.value)) {
-        declaracion.reacciones[reaccion] = (declaracion.reacciones[reaccion] || 0) + 1;
-        declaracion.usuariosReaccionaron.push(usuarioId.value);
-      } else {
+      // Get current user reaction if any
+      const currentReaction = declaracion.usuariosReaccionTipo?.[usuarioId.value];
+
+      // If clicking the same reaction, remove it
+      if (currentReaction === reaccion) {
         declaracion.reacciones[reaccion] = (declaracion.reacciones[reaccion] || 0) - 1;
-        declaracion.usuariosReaccionaron = declaracion.usuariosReaccionaron.filter((uid: string) => uid !== usuarioId.value);
+        delete declaracion.usuariosReaccionTipo[usuarioId.value];
+        declaracion.usuariosReaccionaron = declaracion.usuariosReaccionaron.filter(uid => uid !== usuarioId.value);
       }
+      // If switching to a new reaction
+      else {
+        // If user had a previous reaction, remove it first
+        if (currentReaction) {
+          declaracion.reacciones[currentReaction] = (declaracion.reacciones[currentReaction] || 0) - 1;
+        } else {
+          // Add user to reacted list if they haven't reacted before
+          declaracion.usuariosReaccionaron.push(usuarioId.value);
+        }
+
+        // Add new reaction
+        declaracion.reacciones[reaccion] = (declaracion.reacciones[reaccion] || 0) + 1;
+        if (!declaracion.usuariosReaccionTipo) {
+          declaracion.usuariosReaccionTipo = {};
+        }
+        declaracion.usuariosReaccionTipo[usuarioId.value] = reaccion;
+      }
+
       await declaracionesStore.actualizarDeclaracion(declaracion);
     }
 
@@ -109,7 +132,8 @@ export default defineComponent({
       compartirDeclaracion,
       cargarMasDeclaraciones,
       handleScroll,
-      agregarNuevaDeclaracion
+      agregarNuevaDeclaracion,
+      usuarioId
     };
   }
 });
