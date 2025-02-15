@@ -13,7 +13,7 @@
           <router-link v-if="isPilarUnlocked(title, pilar)"
             :to="{ name: 'CategoryPilarPage', params: { category: title, pilar: pilar } }"
             @click="navigateToCategoryPilarPage(pilar)">
-            <q-btn flat rounded color="primary">
+            <q-btn flat rounded color="white">
               <div>{{ pilar }}</div>
             </q-btn>
           </router-link>
