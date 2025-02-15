@@ -25,7 +25,3 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_DIVIDIS_75984 }}'
           channelId: live
           projectId: dividis-75984
-      - name: Cleanup orphan processes
-        run: |
-          git config --local --unset-all http.https://github.com/.extraheader
-          git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\\.https\\:\\/\\/github\\.com\\/\\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
