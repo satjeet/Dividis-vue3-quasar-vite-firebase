@@ -8,7 +8,7 @@
 
 ## 💫 Descripción
 
-Dividis es una innovadora plataforma de crecimiento personal que te ayuda a transformar tu vida a través de declaraciones poderosas y una comunidad comprometida. Utilizando un sistema único de progresión y desbloqueo, hace que el desarrollo personal sea más efectivo y entretenido.
+Diseña una Vida Que Disfrutes,Dividis es una innovadora plataforma de crecimiento personal que te ayuda a transformar tu vida a través de declaraciones poderosas y una comunidad comprometida. Utilizando un sistema único de progresión y desbloqueo, hace que el desarrollo personal sea más efectivo y entretenido.
 
 ## 📋 Índice
 - [Características](#-características-principales)
