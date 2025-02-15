@@ -2,8 +2,7 @@ import { ref, computed } from 'vue';
 import { useDeclaracionesStore } from '../stores/declaraciones-store';
 import { useViajeStore } from '../stores/viaje-store';
 import { auth } from '../firebase';
-import { categorias, pilares } from '../constants/declaraciones';
-import type { Declaracion } from '../types/declaracion';
+import type { DeclaracionFormState, Declaracion } from '../types/declaracion';
 
 export function useDeclaracionForm() {
   const declaracion = ref('');
@@ -51,13 +50,13 @@ export function useDeclaracionForm() {
       return;
     }
 
-    const declData = createDeclaracionData(userId);
-
     try {
+      const declData = createDeclaracionData(userId);
+
       // Guardar primero en el store global
       await storeGlobal.agregarDeclaracion(declData);
 
-      // Luego guardar en viaje
+      // Luego guardar en el viaje personal
       await storeViaje.addSentence(categoria.value, pilar.value, declaracion.value);
 
       // Limpiar campos
@@ -80,8 +79,6 @@ export function useDeclaracionForm() {
     pilar,
     isExpanded,
     isButtonDisabled,
-    categorias,
-    pilares,
     expand,
     compress,
     guardarDeclaracion

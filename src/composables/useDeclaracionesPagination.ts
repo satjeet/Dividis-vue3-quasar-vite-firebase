@@ -1,13 +1,16 @@
 import { ref, computed } from 'vue';
 import { useDeclaracionesStore, Declaracion } from '../stores/declaraciones-store';
+import { useUnlockedContent } from './useUnlockedContent';
 
 export function useDeclaracionesPagination() {
   const declaracionesStore = useDeclaracionesStore();
+  const { filterUnlockedDeclaraciones } = useUnlockedContent();
   const lastIndex = ref<number>(8);
   const PAGE_SIZE = 8;
 
   const paginatedDeclaraciones = computed(() => {
-    return declaracionesStore.declaraciones.slice(0, lastIndex.value);
+    const unlockedDeclaraciones = filterUnlockedDeclaraciones(declaracionesStore.declaraciones);
+    return unlockedDeclaraciones.slice(0, lastIndex.value);
   });
 
   const cargarMasDeclaraciones = () => {

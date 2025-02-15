@@ -3,25 +3,7 @@ import { ref } from 'vue';
 import { db } from '../firebase';
 import { doc, updateDoc, collection, getDocs, getDoc, setDoc, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { useViajeStore } from './viaje-store';
-
-export interface Declaracion {
-  id: string;
-  texto: string;
-  pilar: string;
-  categoria: string;
-  creadorId: string;
-  compartidos: number;
-  reacciones: {
-    meEncanta: number;
-    estaOk: number;
-    mejorCambiala: number;
-  };
-  usuariosReaccionaron: string[];
-  usuariosCompartieron: string[];
-  usuariosReaccionTipo: {
-    [userId: string]: 'meEncanta' | 'estaOk' | 'mejorCambiala';
-  };
-}
+import type { Declaracion } from '../types/declaracion';
 
 export const useDeclaracionesStore = defineStore('declaraciones', () => {
   const declaraciones = ref<Declaracion[]>([]);
@@ -45,12 +27,19 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
           console.log('Número de declaraciones en el documento:', data.declaraciones.length);
           data.declaraciones.forEach(declaracion => {
             console.log('Declaración:', JSON.stringify(declaracion, null, 2));
-            declaraciones.value.push(declaracion);
+            declaraciones.value.push({
+              ...declaracion,
+              esPublica: true
+            });
           });
         } else {
           // Si cada documento es una declaración en sí misma
           console.log('Declaración individual:', JSON.stringify(data, null, 2));
-          declaraciones.value.push({ id: doc.id, ...data } as Declaracion);
+          declaraciones.value.push({
+            id: doc.id,
+            ...data,
+            esPublica: true
+          } as Declaracion);
         }
       });
 
@@ -67,7 +56,7 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
     try {
       // Update local store first for immediate reactivity
       declaraciones.value = declaraciones.value.map(decl =>
-        decl.id === declaracion.id ? { ...declaracion } : decl
+        decl.id === declaracion.id ? { ...declaracion, esPublica: true } : decl
       );
 
       // Then update Firebase
@@ -75,7 +64,7 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const declaracionesFirebase = docSnap.data().declaraciones.map((decl: Declaracion) =>
-          decl.id === declaracion.id ? { ...declaracion } : decl
+          decl.id === declaracion.id ? { ...declaracion, esPublica: true } : decl
         );
         await updateDoc(docRef, { declaraciones: declaracionesFirebase });
         console.log('Declaración actualizada:', JSON.stringify(declaracion, null, 2));
@@ -90,7 +79,8 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
   async function agregarDeclaracion(declaracion: Declaracion) {
     try {
       // Actualizar el estado local primero
-      declaraciones.value = [declaracion, ...declaraciones.value];
+      const declaracionConPublica = { ...declaracion, esPublica: true };
+      declaraciones.value = [declaracionConPublica, ...declaraciones.value];
 
       // Luego guardar en Firebase
       const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`);
@@ -99,13 +89,13 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         await updateDoc(docRef, {
-          declaraciones: [declaracion, ...data.declaraciones]
+          declaraciones: [declaracionConPublica, ...data.declaraciones]
         });
       } else {
-        await setDoc(docRef, { declaraciones: [declaracion] });
+        await setDoc(docRef, { declaraciones: [declaracionConPublica] });
       }
 
-      console.log('Declaración agregada:', JSON.stringify(declaracion, null, 2));
+      console.log('Declaración agregada:', JSON.stringify(declaracionConPublica, null, 2));
     } catch (error) {
       // Si hay error, revertir el cambio local
       declaraciones.value = declaraciones.value.filter(d => d.id !== declaracion.id);

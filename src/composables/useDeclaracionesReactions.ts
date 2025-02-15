@@ -1,13 +1,15 @@
 import { ref } from 'vue';
-import { Declaracion } from '../stores/declaraciones-store';
+import type { Declaracion, TipoReaccion } from '../types/declaracion';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useViajeStore } from '../stores/viaje-store';
+import { useUnlockedContent } from './useUnlockedContent';
 
 export function useDeclaracionesReactions(usuarioId: string) {
   const viajeStore = useViajeStore();
+  const { isContentUnlocked } = useUnlockedContent();
 
-  const react = async (declaracion: Declaracion, reaccion: keyof Declaracion['reacciones']) => {
+  const react = async (declaracion: Declaracion, reaccion: TipoReaccion) => {
     // Get current user reaction if any
     const currentReaction = declaracion.usuariosReaccionTipo?.[usuarioId];
 
@@ -15,7 +17,7 @@ export function useDeclaracionesReactions(usuarioId: string) {
     if (currentReaction === reaccion) {
       declaracion.reacciones[reaccion] = (declaracion.reacciones[reaccion] || 0) - 1;
       delete declaracion.usuariosReaccionTipo[usuarioId];
-      declaracion.usuariosReaccionaron = declaracion.usuariosReaccionaron.filter(uid => uid !== usuarioId);
+      declaracion.usuariosReaccionaron = declaracion.usuariosReaccionaron.filter((uid: string) => uid !== usuarioId);
     }
     // If switching to a new reaction
     else {
@@ -51,6 +53,12 @@ export function useDeclaracionesReactions(usuarioId: string) {
       return;
     }
 
+    // Verificar si el usuario tiene desbloqueado el contenido
+    if (!isContentUnlocked(declaracion.categoria, declaracion.pilar)) {
+      console.log('Necesitas desbloquear esta categoría/pilar primero');
+      return;
+    }
+
     try {
       // First update the local object
       declaracion.compartidos = (declaracion.compartidos || 0) + 1;
@@ -74,7 +82,7 @@ export function useDeclaracionesReactions(usuarioId: string) {
       console.error('Error al compartir declaración:', error);
       // Rollback changes if something failed
       declaracion.compartidos--;
-      declaracion.usuariosCompartieron = declaracion.usuariosCompartieron.filter(id => id !== usuarioId);
+      declaracion.usuariosCompartieron = declaracion.usuariosCompartieron.filter((id: string) => id !== usuarioId);
     }
   };
 

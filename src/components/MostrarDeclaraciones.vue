@@ -45,7 +45,7 @@
 import { inject, onMounted } from 'vue';
 import { useDeclaracionesReactions } from '../composables/useDeclaracionesReactions';
 import { useDeclaracionesPagination } from '../composables/useDeclaracionesPagination';
-import { Declaracion } from '../stores/declaraciones-store';
+import type { Declaracion } from '../types/declaracion';
 
 // Get user ID from injected Google user
 const userGoogle = inject('userGoogle') as any;
