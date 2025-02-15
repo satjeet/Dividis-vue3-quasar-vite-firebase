@@ -104,10 +104,62 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
     }
   }
 
+  async function eliminarDeclaracion(id: string) {
+    try {
+      const declaracion = declaraciones.value.find(d => d.id === id)
+      if (!declaracion) return
+
+      // Eliminar del estado local
+      declaraciones.value = declaraciones.value.filter(d => d.id !== id)
+
+      // Eliminar de Firebase
+      const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        const updatedDeclaraciones = data.declaraciones.filter((d: Declaracion) => d.id !== id)
+        await updateDoc(docRef, { declaraciones: updatedDeclaraciones })
+      }
+    } catch (error) {
+      console.error('Error al eliminar declaración:', error)
+      throw error
+    }
+  }
+
+  async function transferirPropiedad(id: string, nuevoPropietarioId: string) {
+    try {
+      const declaracion = declaraciones.value.find(d => d.id === id)
+      if (!declaracion) return
+
+      // Actualizar en el estado local
+      declaraciones.value = declaraciones.value.map(d =>
+        d.id === id ? { ...d, creadorId: nuevoPropietarioId } : d
+      )
+
+      // Actualizar en Firebase
+      const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        const updatedDeclaraciones = data.declaraciones.map((d: Declaracion) =>
+          d.id === id ? { ...d, creadorId: nuevoPropietarioId } : d
+        )
+        await updateDoc(docRef, { declaraciones: updatedDeclaraciones })
+      }
+    } catch (error) {
+      console.error('Error al transferir propiedad:', error)
+      throw error
+    }
+  }
+
   return {
     declaraciones,
     cargarDeclaraciones,
     actualizarDeclaracion,
-    agregarDeclaracion
+    agregarDeclaracion,
+    eliminarDeclaracion,
+    transferirPropiedad
   };
 });
