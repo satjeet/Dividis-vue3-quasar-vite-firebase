@@ -1,0 +1,15 @@
+rm -f src/types/test-env.d.ts
+rm -f src/types/test-types.d.ts
+rm -f src/types/test-setup.d.ts
+rm -f src/types/test.d.ts
+rm -f src/types/global.d.ts
+rm -f src/tests/test-types.d.ts
+rm -f src/tests/test-types.ts
+rm -f src/tests/types.d.ts
+rm -f src/tests/types.ts
+rm -f src/tests/vitest.d.ts
+rm -f src/tests/vitest-globals.d.ts
+rm -f src/tests/vitest-env.d.ts
+rm -f src/tests/globals.d.ts
+rm -f src/tests/test-env.d.ts
+chmod +x rm_files.sh

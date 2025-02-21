@@ -1,180 +1,195 @@
 <template>
-  <div class="pilar-sentences-container">
-    <ul>
-      <li v-for="(sentence, index) in sentencesWithPublicStatus" :key="index" class="q-py-sm">
-        <div class="row" style="display: flex; justify-content: space-between; align-items: center;">
-          <div class="col text-left">{{ sentence.text }}</div>
-          <div class="col-auto">
-            <q-btn flat round dense :icon="sentence.isPublic ? 'lock_open' : 'lock'"
-              :color="sentence.isPublic ? 'positive' : 'grey'" @click="togglePublic(index)" class="q-mr-sm" />
-            <q-btn flat round dense icon="edit" @click="editSentence(index)" />
-            <q-btn flat round dense icon="delete" @click="deleteSentence(index)" />
-          </div>
-        </div>
-      </li>
-    </ul>
-    <div v-if="editingIndex !== null">
-      <label>
-        Edita la sentencia:
-        <input type="text" v-model="editingSentence" />
-      </label>
-      <q-btn label="Save" @click="saveEdit" />
-      <q-btn label="Cancel" @click="cancelEdit" />
+  <div class="sentences-list">
+    <q-list v-if="sentences.length > 0">
+      <q-item v-for="(sentence, index) in sentences" :key="index" class="sentence-item">
+        <q-item-section>
+          <q-item-label>
+            <div class="sentence-content">
+              <span>{{ sentence }}</span>
+              <div class="sentence-actions">
+                <q-btn flat round size="sm" color="primary" icon="edit" @click="editSentence(index)" />
+                <q-btn flat round size="sm" color="negative" icon="delete" @click="deleteSentence(index)" />
+              </div>
+            </div>
+          </q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-list>
+
+    <div v-else class="empty-state">
+      <q-icon name="note_add" size="50px" color="grey-5" />
+      <div class="text-grey-6 q-mt-sm">No hay declaraciones aún</div>
     </div>
+
+    <!-- Edit Dialog -->
+    <q-dialog v-model="showEditDialog" persistent>
+      <q-card style="min-width: 350px">
+        <q-card-section>
+          <div class="text-h6">Editar Declaración</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <q-input v-model="editedSentence" autofocus @keyup.enter="saveEdit" />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="primary" v-close-popup />
+          <q-btn flat label="Guardar" color="primary" @click="saveEdit" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Delete Confirmation Dialog -->
+    <q-dialog v-model="showDeleteDialog" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="warning" color="warning" text-color="white" />
+          <span class="q-ml-sm">¿Estás seguro de que quieres eliminar esta declaración?</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="primary" v-close-popup />
+          <q-btn flat label="Eliminar" color="negative" @click="confirmDelete" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue'
-import { useViajeStore } from '../stores/viaje-store'
-import { useDeclaracionesStore } from '../stores/declaraciones-store'
-import { auth } from '../firebase'
+<script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useNotifications } from '../composables'
+import { CategoryService } from '../services/CategoryService'
 
-export default defineComponent({
-  props: {
-    category: { type: String, required: true },
-    pilar: { type: String, required: true }
+const categoryService = new CategoryService()
+
+const props = defineProps<{
+  category: string
+  pilar: string
+}>()
+
+const sentences = ref<string[]>([])
+const showEditDialog = ref(false)
+const showDeleteDialog = ref(false)
+const editedSentence = ref('')
+const editingIndex = ref(-1)
+const deletingIndex = ref(-1)
+const notify = useNotifications()
+
+// Initialize and watch for changes
+watch(
+  () => [props.category, props.pilar],
+  () => {
+    loadSentences()
   },
-  setup(props) {
-    const viajeStore = useViajeStore()
-    const declaracionesStore = useDeclaracionesStore()
-    const editingIndex = ref<number | null>(null)
-    const editingSentence = ref('')
+  { immediate: true }
+)
 
-    onMounted(async () => {
-      await declaracionesStore.cargarDeclaraciones()
-    })
+function loadSentences() {
+  const pilar = categoryService.getPilarByName(props.category, props.pilar)
+  if (pilar) {
+    sentences.value = [...pilar.sentences]
+  } else {
+    sentences.value = []
+  }
+}
 
-    const sentencesWithPublicStatus = computed(() => {
-      const category = viajeStore.categories.find(cat => cat.name === props.category)
-      if (category) {
-        const pilar = category.pilars.find(pilar => pilar.name === props.pilar)
-        if (pilar) {
-          return pilar.sentences.map(text => {
-            const currentUser = auth.currentUser
-            const matchingDeclaracion = declaracionesStore.declaraciones.find(d =>
-              d.texto === text &&
-              d.categoria === props.category &&
-              d.pilar === props.pilar
-            )
+function editSentence(index: number) {
+  editingIndex.value = index
+  editedSentence.value = sentences.value[index]
+  showEditDialog.value = true
+}
 
-            // Solo mostrar como pública si el usuario actual es el creador
-            const isPublic = matchingDeclaracion &&
-              currentUser &&
-              matchingDeclaracion.creadorId === currentUser.uid
-
-            return {
-              text,
-              isPublic: !!isPublic
-            }
-          })
-        }
-      }
-      return []
-    })
-
-    async function togglePublic(index: number) {
-      const sentence = sentencesWithPublicStatus.value[index]
-      const currentUser = auth.currentUser
-
-      if (!currentUser) return
-
-      if (!sentence.isPublic) {
-        // Hacer pública la declaración
-        const newDeclaracion = {
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          texto: sentence.text,
-          pilar: props.pilar,
-          categoria: props.category,
-          creadorId: currentUser.uid,
-          compartidos: 0,
-          reacciones: {
-            meEncanta: 0,
-            estaOk: 0,
-            mejorCambiala: 0
-          },
-          usuariosReaccionaron: [],
-          usuariosCompartieron: [],
-          usuariosReaccionTipo: {},
-          esPublica: true
-        }
-
-        try {
-          await declaracionesStore.agregarDeclaracion(newDeclaracion)
-        } catch (error) {
-          console.error('Error al hacer pública la declaración:', error)
-        }
-      } else {
-        // Hacer privada la declaración
-        const declaracion = declaracionesStore.declaraciones.find(d =>
-          d.texto === sentence.text &&
-          d.categoria === props.category &&
-          d.pilar === props.pilar &&
-          d.creadorId === currentUser.uid // Solo si es el creador
-        )
-
-        if (declaracion) {
-          try {
-            // Si tiene usuarios que la compartieron
-            if (declaracion.usuariosCompartieron.length > 0) {
-              // Transferir la propiedad al primero que la compartió
-              const nuevoPropietario = declaracion.usuariosCompartieron[0]
-              await declaracionesStore.transferirPropiedad(declaracion.id, nuevoPropietario)
-            } else {
-              // Si nadie la ha compartido, eliminarla
-              await declaracionesStore.eliminarDeclaracion(declaracion.id)
-            }
-          } catch (error) {
-            console.error('Error al hacer privada la declaración:', error)
-          }
-        }
-      }
-    }
-
-    function editSentence(index: number) {
-      editingIndex.value = index
-      editingSentence.value = sentencesWithPublicStatus.value[index].text
-    }
-
-    function saveEdit() {
-      if (editingIndex.value !== null) {
-        viajeStore.editSentence(props.category, props.pilar, editingIndex.value, editingSentence.value)
-        editingIndex.value = null
-        editingSentence.value = ''
-      }
-    }
-
-    function cancelEdit() {
-      editingIndex.value = null
-      editingSentence.value = ''
-    }
-
-    function deleteSentence(index: number) {
-      viajeStore.deleteSentence(props.category, props.pilar, index)
-    }
-
-    return {
-      sentencesWithPublicStatus,
-      editingIndex,
-      editingSentence,
-      editSentence,
-      saveEdit,
-      cancelEdit,
-      deleteSentence,
-      togglePublic
+async function saveEdit() {
+  if (editedSentence.value.trim() && editingIndex.value !== -1) {
+    try {
+      categoryService.editSentence(
+        props.category,
+        props.pilar,
+        editingIndex.value,
+        editedSentence.value.trim()
+      )
+      notify.success('Declaración actualizada correctamente')
+      loadSentences()
+    } catch (error) {
+      notify.error('Error al actualizar la declaración')
+      console.error('Error saving edit:', error)
     }
   }
-})
+  editingIndex.value = -1
+  editedSentence.value = ''
+}
+
+function deleteSentence(index: number) {
+  deletingIndex.value = index
+  showDeleteDialog.value = true
+}
+
+async function confirmDelete() {
+  if (deletingIndex.value !== -1) {
+    try {
+      categoryService.deleteSentence(props.category, props.pilar, deletingIndex.value)
+      notify.success('Declaración eliminada correctamente')
+      loadSentences()
+    } catch (error) {
+      notify.error('Error al eliminar la declaración')
+      console.error('Error deleting sentence:', error)
+    }
+  }
+  deletingIndex.value = -1
+}
 </script>
 
-<style scoped>
-.pilar-sentences-container {
-  max-height: 100%;
-  overflow-y: auto;
+<style scoped lang="scss">
+.sentences-list {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
 
 .sentence-item {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+
+    .sentence-actions {
+      opacity: 1;
+    }
+  }
+}
+
+.sentence-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 8px;
+  gap: 16px;
+
+  span {
+    flex: 1;
+    white-space: pre-wrap;
+  }
+}
+
+.sentence-actions {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  opacity: 0.7;
 }
 </style>

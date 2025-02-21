@@ -1,54 +1,23 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-import { db } from '../firebase';
-import { doc, updateDoc, collection, getDocs, getDoc, setDoc, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
-import { useViajeStore } from './viaje-store';
-import type { Declaracion } from '../types/declaracion';
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import type { Declaracion } from '../types/declaracion'
+import { DeclaracionesFirebaseRepository } from '../repositories/DeclaracionesFirebaseRepository'
+import { DeclaracionSharing } from '../services/DeclaracionSharing'
 
 export const useDeclaracionesStore = defineStore('declaraciones', () => {
-  const declaraciones = ref<Declaracion[]>([]);
-  const viajeStore = useViajeStore();
+  // State
+  const declaraciones = ref<Declaracion[]>([])
+  const repository = new DeclaracionesFirebaseRepository()
+  const sharingService = new DeclaracionSharing()
 
+  // Actions
   async function cargarDeclaraciones() {
     try {
-      console.log("Cargando declaraciones...");
-      const querySnapshot = await getDocs(collection(db, 'declaracionesPublicas'));
-
-      declaraciones.value = []; // Limpiar antes de llenar
-
-      console.log('Número de documentos en la colección declaracionesPublicas:', querySnapshot.size);
-      console.log('Documentos en la colección declaracionesPublicas:');
-      querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
-        const data = doc.data();
-        console.log('Documento ID:', doc.id);
-        console.log('Datos del documento:', JSON.stringify(data, null, 2));
-
-        if (Array.isArray(data.declaraciones)) {
-          console.log('Número de declaraciones en el documento:', data.declaraciones.length);
-          data.declaraciones.forEach(declaracion => {
-            console.log('Declaración:', JSON.stringify(declaracion, null, 2));
-            declaraciones.value.push({
-              ...declaracion,
-              esPublica: true
-            });
-          });
-        } else {
-          // Si cada documento es una declaración en sí misma
-          console.log('Declaración individual:', JSON.stringify(data, null, 2));
-          declaraciones.value.push({
-            id: doc.id,
-            ...data,
-            esPublica: true
-          } as Declaracion);
-        }
-      });
-
-      // Ordenar todas las declaraciones por la cantidad de veces que han sido compartidas
-      declaraciones.value.sort((a, b) => b.compartidos - a.compartidos);
-
-      console.log('Declaraciones cargadas:', JSON.stringify(declaraciones.value, null, 2));
+      declaraciones.value = await repository.loadDeclaraciones()
+      console.log('Declaraciones cargadas:', declaraciones.value)
     } catch (error) {
-      console.error("Error al cargar declaraciones:", error);
+      console.error("Error al cargar declaraciones:", error)
+      throw error
     }
   }
 
@@ -57,99 +26,100 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
       // Update local store first for immediate reactivity
       declaraciones.value = declaraciones.value.map(decl =>
         decl.id === declaracion.id ? { ...declaracion, esPublica: true } : decl
-      );
-
-      // Then update Firebase
-      const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const declaracionesFirebase = docSnap.data().declaraciones.map((decl: Declaracion) =>
-          decl.id === declaracion.id ? { ...declaracion, esPublica: true } : decl
-        );
-        await updateDoc(docRef, { declaraciones: declaracionesFirebase });
-        console.log('Declaración actualizada:', JSON.stringify(declaracion, null, 2));
-      }
+      )
+      await repository.updateDeclaracion(declaracion)
     } catch (error) {
-      console.error("Error al actualizar declaración:", error);
+      console.error("Error al actualizar declaración:", error)
       // Rollback on error
-      await cargarDeclaraciones();
+      await cargarDeclaraciones()
+      throw error
     }
   }
 
   async function agregarDeclaracion(declaracion: Declaracion) {
     try {
-      // Actualizar el estado local primero
-      const declaracionConPublica = { ...declaracion, esPublica: true };
-      declaraciones.value = [declaracionConPublica, ...declaraciones.value];
-
-      // Luego guardar en Firebase
-      const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        await updateDoc(docRef, {
-          declaraciones: [declaracionConPublica, ...data.declaraciones]
-        });
-      } else {
-        await setDoc(docRef, { declaraciones: [declaracionConPublica] });
-      }
-
-      console.log('Declaración agregada:', JSON.stringify(declaracionConPublica, null, 2));
+      // Update local state first
+      declaraciones.value = [{ ...declaracion, esPublica: true }, ...declaraciones.value]
+      await repository.saveDeclaracion(declaracion)
     } catch (error) {
-      // Si hay error, revertir el cambio local
-      declaraciones.value = declaraciones.value.filter(d => d.id !== declaracion.id);
-      console.error("Error al agregar declaración:", error);
-      throw error; // Propagar el error para manejarlo en el componente
-    }
-  }
-
-  async function eliminarDeclaracion(id: string) {
-    try {
-      const declaracion = declaraciones.value.find(d => d.id === id)
-      if (!declaracion) return
-
-      // Eliminar del estado local
-      declaraciones.value = declaraciones.value.filter(d => d.id !== id)
-
-      // Eliminar de Firebase
-      const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`)
-      const docSnap = await getDoc(docRef)
-
-      if (docSnap.exists()) {
-        const data = docSnap.data()
-        const updatedDeclaraciones = data.declaraciones.filter((d: Declaracion) => d.id !== id)
-        await updateDoc(docRef, { declaraciones: updatedDeclaraciones })
-      }
-    } catch (error) {
-      console.error('Error al eliminar declaración:', error)
+      // Rollback on error
+      declaraciones.value = declaraciones.value.filter(d => d.id !== declaracion.id)
+      console.error("Error al agregar declaración:", error)
       throw error
     }
   }
 
-  async function transferirPropiedad(id: string, nuevoPropietarioId: string) {
+  async function eliminarDeclaracion(declaracion: Declaracion) {
     try {
-      const declaracion = declaraciones.value.find(d => d.id === id)
-      if (!declaracion) return
+      // Remove from local state
+      declaraciones.value = declaraciones.value.filter(d => d.id !== declaracion.id)
+      await repository.deleteDeclaracion(declaracion.id, declaracion.categoria, declaracion.pilar)
 
-      // Actualizar en el estado local
-      declaraciones.value = declaraciones.value.map(d =>
-        d.id === id ? { ...d, creadorId: nuevoPropietarioId } : d
+      // Also cleanup shared status
+      await sharingService.syncSharedStatus(declaracion)
+    } catch (error) {
+      console.error('Error al eliminar declaración:', error)
+      // Rollback on error
+      await cargarDeclaraciones()
+      throw error
+    }
+  }
+
+  async function transferirPropiedad(declaracion: Declaracion, nuevoPropietarioId: string) {
+    try {
+      await repository.transferDeclaracion(
+        declaracion.id,
+        nuevoPropietarioId,
+        declaracion.categoria,
+        declaracion.pilar
       )
 
-      // Actualizar en Firebase
-      const docRef = doc(db, 'declaracionesPublicas', `${declaracion.categoria}-${declaracion.pilar}`)
-      const docSnap = await getDoc(docRef)
-
-      if (docSnap.exists()) {
-        const data = docSnap.data()
-        const updatedDeclaraciones = data.declaraciones.map((d: Declaracion) =>
-          d.id === id ? { ...d, creadorId: nuevoPropietarioId } : d
-        )
-        await updateDoc(docRef, { declaraciones: updatedDeclaraciones })
-      }
+      // Update local state
+      declaraciones.value = declaraciones.value.map(d =>
+        d.id === declaracion.id ? { ...d, creadorId: nuevoPropietarioId } : d
+      )
     } catch (error) {
       console.error('Error al transferir propiedad:', error)
+      // Rollback on error
+      await cargarDeclaraciones()
+      throw error
+    }
+  }
+
+  async function compartirDeclaracion(declaracion: Declaracion, userId: string) {
+    try {
+      await sharingService.shareDeclaracion(declaracion, userId)
+      // Update local state
+      declaraciones.value = declaraciones.value.map(d =>
+        d.id === declaracion.id
+          ? {
+              ...d,
+              compartidos: d.compartidos + 1,
+              usuariosCompartieron: [...(d.usuariosCompartieron || []), userId]
+            }
+          : d
+      )
+    } catch (error) {
+      console.error('Error al compartir declaración:', error)
+      throw error
+    }
+  }
+
+  async function dejarDeCompartir(declaracion: Declaracion, userId: string) {
+    try {
+      await sharingService.unshareDeclaracion(declaracion, userId)
+      // Update local state
+      declaraciones.value = declaraciones.value.map(d =>
+        d.id === declaracion.id
+          ? {
+              ...d,
+              compartidos: Math.max(0, d.compartidos - 1),
+              usuariosCompartieron: (d.usuariosCompartieron || []).filter(id => id !== userId)
+            }
+          : d
+      )
+    } catch (error) {
+      console.error('Error al dejar de compartir declaración:', error)
       throw error
     }
   }
@@ -160,6 +130,8 @@ export const useDeclaracionesStore = defineStore('declaraciones', () => {
     actualizarDeclaracion,
     agregarDeclaracion,
     eliminarDeclaracion,
-    transferirPropiedad
-  };
-});
+    transferirPropiedad,
+    compartirDeclaracion,
+    dejarDeCompartir
+  }
+})

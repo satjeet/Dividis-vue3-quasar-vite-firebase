@@ -1,0 +1,197 @@
+name: Test Toolkit Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on version tags
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  prepare-release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get Version
+        id: version
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          if [ -z "$VERSION" ]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate Changelog Entry
+        id: changelog
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
+
+          echo "# Test Toolkit $VERSION" > release-notes.md
+          echo "## Changes" >> release-notes.md
+          echo "" >> release-notes.md
+
+          # Get commits since last tag
+          git log "$PREV_TAG..$VERSION" --pretty=format:'- %s' --reverse | \
+          grep -v 'Merge' >> release-notes.md
+
+          # Group changes by type
+          echo "" >> release-notes.md
+          echo "## Details" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "### Features" >> release-notes.md
+          git log "$PREV_TAG..$VERSION" --pretty=format:'- %s' --reverse | \
+          grep '^feat' >> release-notes.md
+
+          echo "" >> release-notes.md
+          echo "### Bug Fixes" >> release-notes.md
+          git log "$PREV_TAG..$VERSION" --pretty=format:'- %s' --reverse | \
+          grep '^fix' >> release-notes.md
+
+          echo "" >> release-notes.md
+          echo "### Documentation" >> release-notes.md
+          git log "$PREV_TAG..$VERSION" --pretty=format:'- %s' --reverse | \
+          grep '^docs' >> release-notes.md
+
+          echo "" >> release-notes.md
+          echo "### Performance" >> release-notes.md
+          git log "$PREV_TAG..$VERSION" --pretty=format:'- %s' --reverse | \
+          grep '^perf' >> release-notes.md
+
+  validate-release:
+    name: Validate Release
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Run Validation
+        run: |
+          ./scripts/validate-test-setup.sh
+          ./scripts/check-pr.sh
+
+      - name: Check Documentation
+        run: |
+          if ! grep -q "${{ steps.version.outputs.version }}" CHANGELOG.md; then
+            echo "::error::Version not found in CHANGELOG.md"
+            exit 1
+          fi
+
+  build-artifacts:
+    name: Build Release Artifacts
+    needs: validate-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Documentation
+        run: |
+          mkdir -p release-artifacts
+          cp -r src/tests/*.md release-artifacts/
+          cp -r scripts/*.sh release-artifacts/
+
+      - name: Create Archive
+        run: |
+          tar -czf test-toolkit-${{ steps.version.outputs.version }}.tar.gz release-artifacts/
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-artifacts
+          path: |
+            test-toolkit-*.tar.gz
+            release-notes.md
+
+  publish-release:
+    name: Publish Release
+    needs: [prepare-release, validate-release, build-artifacts]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: release-artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Test Toolkit ${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          files: |
+            test-toolkit-*.tar.gz
+          draft: false
+          prerelease: false
+
+      - name: Update Documentation
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Update version references
+          find . -type f -name "*.md" -exec sed -i "s/current version: .*/current version: ${{ steps.version.outputs.version }}/" {} \;
+
+          git add .
+          git commit -m "docs: update version references to ${{ steps.version.outputs.version }}"
+          git push
+
+  notify:
+    name: Send Release Notifications
+    needs: publish-release
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Create Release Discussion
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs')
+            const releaseNotes = fs.readFileSync('release-notes.md', 'utf8')
+
+            await github.rest.discussions.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              category_id: 'DIC_GENERAL',
+              title: `Test Toolkit ${{ steps.version.outputs.version }} Released`,
+              body: releaseNotes
+            })
+
+      - name: Update Project Board
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const releaseIssue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📦 Test Toolkit ${{ steps.version.outputs.version }} Released`,
+              body: 'Release tasks completed successfully',
+              labels: ['release', 'documentation']
+            })
+
+      - name: Post Release Summary
+        run: |
+          echo "### Release Summary" >> $GITHUB_STEP_SUMMARY
+          echo "* Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "* Status: Released ✅" >> $GITHUB_STEP_SUMMARY
+          echo "* Documentation: Updated 📚" >> $GITHUB_STEP_SUMMARY
+          echo "* Release Notes: [View on GitHub](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${{ steps.version.outputs.version }})" >> $GITHUB_STEP_SUMMARY

@@ -1,0 +1,221 @@
+name: Test Toolkit Validation
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'vitest.config.ts'
+      - '.test-toolkit-config'
+
+jobs:
+  validate:
+    name: Validate Test Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Make Scripts Executable
+        run: chmod +x scripts/*.sh
+
+      - name: Initialize Test Environment
+        run: |
+          ./scripts/init-test-tools.sh
+          ./scripts/validate-test-setup.sh
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Check Test Coverage
+        run: npm run test:coverage
+
+      - name: Generate Test Reports
+        run: ./scripts/analyze-logs.sh
+
+      - name: Validate PR
+        id: pr-validation
+        run: |
+          OUTPUT=$(./scripts/check-pr.sh)
+          echo "::set-output name=validation_output::$OUTPUT"
+          if [[ $? -ne 0 ]]; then
+            echo "PR validation failed"
+            exit 1
+          fi
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            coverage/
+            test-reports/
+            test-logs/
+
+      - name: Check Documentation
+        run: |
+          if [[ -n $(git diff --name-only origin/${{ github.base_ref }} | grep "\.ts$") ]]; then
+            if [[ -z $(git diff --name-only origin/${{ github.base_ref }} | grep "\.md$") ]]; then
+              echo "Warning: Code changes detected but no documentation updates found"
+              exit 1
+            fi
+          fi
+
+      - name: Check Changelog
+        run: |
+          if [[ -z $(git diff --name-only origin/${{ github.base_ref }} | grep "CHANGELOG.md") ]]; then
+            echo "Warning: No changelog updates found"
+            exit 1
+          fi
+
+      - name: Report Status
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const validationOutput = `${{ steps.pr-validation.outputs.validation_output }}`
+            const summary = `## Test Toolkit Validation Results
+
+            \`\`\`
+            ${validationOutput}
+            \`\`\`
+
+            ### Artifacts
+            - Test Results: Available in workflow artifacts
+            - Coverage Report: Available in workflow artifacts
+            - Analysis Report: Available in workflow artifacts
+
+            ### Next Steps
+            - [ ] Review test results
+            - [ ] Check coverage report
+            - [ ] Address any validation issues
+            - [ ] Update documentation if needed
+            - [ ] Update changelog if needed
+            `
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            })
+
+  performance:
+    name: Performance Testing
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Performance Tests
+        run: |
+          npm test -- --perf
+          ./scripts/analyze-logs.sh --perf
+
+      - name: Generate Performance Report
+        run: ./scripts/visualize-reports.sh
+
+      - name: Upload Performance Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: test-reports/performance*
+
+      - name: Check Performance Regression
+        run: |
+          if grep -q "PERFORMANCE REGRESSION" test-reports/performance*.txt; then
+            echo "Performance regression detected!"
+            exit 1
+          fi
+
+  report:
+    name: Generate Final Report
+    needs: [validate, performance]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Process Results
+        run: |
+          echo "# Test Toolkit Validation Report" > report.md
+          echo "## Test Results" >> report.md
+          cat artifacts/test-results/coverage/coverage-summary.json >> report.md
+          echo "## Performance Results" >> report.md
+          cat artifacts/performance-results/performance*.txt >> report.md
+
+      - name: Upload Final Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: validation-report
+          path: report.md
+
+      - name: Update PR
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs')
+            const report = fs.readFileSync('report.md', 'utf8')
+
+            const conclusion = `### Test Toolkit Validation Summary
+
+            ${report}
+
+            ### Status
+            - Validation: ${{ needs.validate.result }}
+            - Performance: ${{ needs.performance.result }}
+
+            Please review the full report in the workflow artifacts.
+            `
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: conclusion
+            })

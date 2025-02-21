@@ -1,0 +1,52 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "skipLibCheck": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist/tests",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./src/tests/*"]
+    },
+    "typeRoots": [
+      "./src/tests/types",
+      "./src/types"
+    ],
+    "types": [
+      "vite/client"
+    ],
+    "allowJs": true,
+    "checkJs": true,
+    "isolatedModules": true
+  },
+  "include": [
+    "src/tests/**/*.ts",
+    "src/tests/**/*.d.ts",
+    "src/tests/**/*.tsx",
+    "src/tests/**/*.vue",
+    "vitest.config.ts",
+    "vitest.d.ts",
+    "src/tests/types/index.d.ts",
+    "src/tests/env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.json"
+    }
+  ]
+}

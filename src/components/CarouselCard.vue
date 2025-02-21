@@ -9,7 +9,7 @@
       <q-separator />
 
       <q-card-actions vertical class="my-card text-white">
-        <div v-for="(pilar, index) in pilars" :key="index">
+        <div v-for="(pilar, index) in availablePilars" :key="index">
           <router-link v-if="isPilarUnlocked(title, pilar)"
             :to="{ name: 'CategoryPilarPage', params: { category: title, pilar: pilar } }"
             @click="navigateToCategoryPilarPage(pilar)">
@@ -28,29 +28,48 @@
 </template>
 
 <script setup lang="ts">
-import { useUserStore } from '../stores/user-store';
-import { useViajeStore } from '../stores/viaje-store';
+import { ref, computed, onMounted } from 'vue'
+import { useViajeStore } from '../stores/viaje-store'
+import { useUserStore } from '../stores/user-store'
+import { CategoryService } from '../services/CategoryService'
 
 const props = defineProps<{
-  name: string;
-  title: string;
-  icon: string;
-}>();
+  name: string
+  title: string
+  icon: string
+}>()
 
-const pilars = ['Vision', 'Proposito', 'Creencias', 'Estrategias'] as const;
-type Pilar = typeof pilars[number];
+const categoryService = new CategoryService()
+const userStore = useUserStore()
+const viajeStore = useViajeStore()
 
-const navigateToCategoryPilarPage = (pilar: Pilar) => {
-  console.log(`Navigating to CategoryPilarPage for category ${props.title} and pilar ${pilar}`);
-  const viajeStore = useViajeStore();
-  viajeStore.setCategoriaSeleccionada(props.title);
-  viajeStore.setPilarSeleccionado(pilar);
-};
+const availablePilars = computed(() => viajeStore.pilars)
 
-const isPilarUnlocked = (category: string, pilar: Pilar): boolean => {
-  const userStore = useUserStore();
-  return userStore.isPilarUnlocked(category, pilar);
-};
+const navigateToCategoryPilarPage = (pilar: string) => {
+  console.log(`Navigating to CategoryPilarPage for category ${props.title} and pilar ${pilar}`)
+  categoryService.setSelectedCategory(props.title)
+  categoryService.setSelectedPilar(pilar)
+}
+
+const isPilarUnlocked = (category: string, pilar: string): boolean => {
+  return userStore.isPilarUnlocked(category, pilar)
+}
+
+onMounted(async () => {
+  await categoryService.loadCategories()
+
+  // Ensure the category exists
+  const category = categoryService.getCategoryByName(props.title)
+  if (!category) {
+    // Initialize with Vision pilar as default
+    const initialPilar = {
+      name: 'Vision',
+      sentences: []
+    }
+    categoryService.addCategory(props.title, initialPilar)
+    await categoryService.saveChanges()
+  }
+})
 </script>
 
 <style scoped>
